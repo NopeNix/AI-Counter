@@ -1,0 +1,402 @@
+[
+    {
+      "object": "Boat",
+      "confidence": 0.36587056517601013
+    },
+    {
+      "object": "Window",
+      "confidence": 0.09887155145406723
+    },
+    {
+      "object": "Window",
+      "confidence": 0.09371863305568695
+    },
+    {
+      "object": "Watercraft",
+      "confidence": 0.0917242020368576
+    },
+    {
+      "object": "Vehicle",
+      "confidence": 0.08328463137149811
+    },
+    {
+      "object": "Window",
+      "confidence": 0.08073785156011581
+    },
+    {
+      "object": "Window",
+      "confidence": 0.07548455148935318
+    },
+    {
+      "object": "Window",
+      "confidence": 0.07363011687994003
+    },
+    {
+      "object": "Window",
+      "confidence": 0.07065289467573166
+    },
+    {
+      "object": "Window",
+      "confidence": 0.06755345314741135
+    },
+    {
+      "object": "Window",
+      "confidence": 0.0669204443693161
+    },
+    {
+      "object": "Skyscraper",
+      "confidence": 0.06375527381896973
+    },
+    {
+      "object": "Building",
+      "confidence": 0.06339894980192184
+    },
+    {
+      "object": "Window",
+      "confidence": 0.06327829509973526
+    },
+    {
+      "object": "Window",
+      "confidence": 0.061128050088882446
+    },
+    {
+      "object": "Window",
+      "confidence": 0.05866336077451706
+    },
+    {
+      "object": "Tree",
+      "confidence": 0.055976394563913345
+    },
+    {
+      "object": "Window",
+      "confidence": 0.05520973354578018
+    },
+    {
+      "object": "Window",
+      "confidence": 0.054686374962329865
+    },
+    {
+      "object": "Window",
+      "confidence": 0.05260502174496651
+    },
+    {
+      "object": "Skyscraper",
+      "confidence": 0.0520009882748127
+    },
+    {
+      "object": "Skyscraper",
+      "confidence": 0.05186520516872406
+    },
+    {
+      "object": "Window",
+      "confidence": 0.05167670175433159
+    },
+    {
+      "object": "Window",
+      "confidence": 0.05147296190261841
+    },
+    {
+      "object": "Tree",
+      "confidence": 0.05109754577279091
+    },
+    {
+      "object": "Window",
+      "confidence": 0.050479691475629807
+    },
+    {
+      "object": "Window",
+      "confidence": 0.05041021108627319
+    },
+    {
+      "object": "Train",
+      "confidence": 0.05010377615690231
+    },
+    {
+      "object": "Window",
+      "confidence": 0.04878351092338562
+    },
+    {
+      "object": "Tower",
+      "confidence": 0.04747667536139488
+    },
+    {
+      "object": "Window",
+      "confidence": 0.04694307968020439
+    },
+    {
+      "object": "Window",
+      "confidence": 0.046474065631628036
+    },
+    {
+      "object": "Window",
+      "confidence": 0.04615806043148041
+    },
+    {
+      "object": "Window",
+      "confidence": 0.04598446562886238
+    },
+    {
+      "object": "Tree",
+      "confidence": 0.04572822153568268
+    },
+    {
+      "object": "Window",
+      "confidence": 0.04566863551735878
+    },
+    {
+      "object": "Window",
+      "confidence": 0.04532340168952942
+    },
+    {
+      "object": "Window",
+      "confidence": 0.04510164260864258
+    },
+    {
+      "object": "Tree",
+      "confidence": 0.0450638085603714
+    },
+    {
+      "object": "Boat",
+      "confidence": 0.04488319903612137
+    },
+    {
+      "object": "Window",
+      "confidence": 0.04460025578737259
+    },
+    {
+      "object": "Tree",
+      "confidence": 0.04450526088476181
+    },
+    {
+      "object": "Tree",
+      "confidence": 0.044495582580566406
+    },
+    {
+      "object": "Tree",
+      "confidence": 0.04371672868728638
+    },
+    {
+      "object": "Window",
+      "confidence": 0.04365205019712448
+    },
+    {
+      "object": "Clothing",
+      "confidence": 0.043582409620285034
+    },
+    {
+      "object": "Tree",
+      "confidence": 0.04356124624609947
+    },
+    {
+      "object": "Tree",
+      "confidence": 0.04324917867779732
+    },
+    {
+      "object": "Tree",
+      "confidence": 0.042714156210422516
+    },
+    {
+      "object": "Window",
+      "confidence": 0.04167914763092995
+    },
+    {
+      "object": "Window",
+      "confidence": 0.04163674637675285
+    },
+    {
+      "object": "Window",
+      "confidence": 0.041339315474033356
+    },
+    {
+      "object": "Window",
+      "confidence": 0.04089829698204994
+    },
+    {
+      "object": "Window",
+      "confidence": 0.04083956778049469
+    },
+    {
+      "object": "Window",
+      "confidence": 0.04072202369570732
+    },
+    {
+      "object": "Window",
+      "confidence": 0.04071879759430885
+    },
+    {
+      "object": "Tree",
+      "confidence": 0.040375322103500366
+    },
+    {
+      "object": "Window",
+      "confidence": 0.04035795480012894
+    },
+    {
+      "object": "Window",
+      "confidence": 0.03998168930411339
+    },
+    {
+      "object": "Window",
+      "confidence": 0.039800696074962616
+    },
+    {
+      "object": "Tree",
+      "confidence": 0.03947724029421806
+    },
+    {
+      "object": "Window",
+      "confidence": 0.038948316127061844
+    },
+    {
+      "object": "Window",
+      "confidence": 0.038851965218782425
+    },
+    {
+      "object": "Window",
+      "confidence": 0.03868347406387329
+    },
+    {
+      "object": "Tree",
+      "confidence": 0.03837224841117859
+    },
+    {
+      "object": "Tree",
+      "confidence": 0.037749409675598145
+    },
+    {
+      "object": "Skyscraper",
+      "confidence": 0.037239596247673035
+    },
+    {
+      "object": "Window",
+      "confidence": 0.03721688687801361
+    },
+    {
+      "object": "Tree",
+      "confidence": 0.036965593695640564
+    },
+    {
+      "object": "Skyscraper",
+      "confidence": 0.03685762360692024
+    },
+    {
+      "object": "Window",
+      "confidence": 0.03676747530698776
+    },
+    {
+      "object": "Window",
+      "confidence": 0.03665688633918762
+    },
+    {
+      "object": "Window",
+      "confidence": 0.03636403754353523
+    },
+    {
+      "object": "Car",
+      "confidence": 0.03591163828969002
+    },
+    {
+      "object": "Footwear",
+      "confidence": 0.035848237574100494
+    },
+    {
+      "object": "Window",
+      "confidence": 0.03577771782875061
+    },
+    {
+      "object": "Window",
+      "confidence": 0.03557995334267616
+    },
+    {
+      "object": "Window",
+      "confidence": 0.03544340282678604
+    },
+    {
+      "object": "Window",
+      "confidence": 0.03524937108159065
+    },
+    {
+      "object": "Tree",
+      "confidence": 0.035229187458753586
+    },
+    {
+      "object": "Window",
+      "confidence": 0.035171858966350555
+    },
+    {
+      "object": "Window",
+      "confidence": 0.0350421704351902
+    },
+    {
+      "object": "Boat",
+      "confidence": 0.03498254343867302
+    },
+    {
+      "object": "Window",
+      "confidence": 0.03491979464888573
+    },
+    {
+      "object": "Window",
+      "confidence": 0.03491606563329697
+    },
+    {
+      "object": "Window",
+      "confidence": 0.034873999655246735
+    },
+    {
+      "object": "Window",
+      "confidence": 0.03469574823975563
+    },
+    {
+      "object": "Tree",
+      "confidence": 0.034519072622060776
+    },
+    {
+      "object": "Clothing",
+      "confidence": 0.034463878720998764
+    },
+    {
+      "object": "Boat",
+      "confidence": 0.03445165604352951
+    },
+    {
+      "object": "Window",
+      "confidence": 0.03433804214000702
+    },
+    {
+      "object": "Window",
+      "confidence": 0.03423837944865227
+    },
+    {
+      "object": "Skyscraper",
+      "confidence": 0.034187257289886475
+    },
+    {
+      "object": "Window",
+      "confidence": 0.034148503094911575
+    },
+    {
+      "object": "Window",
+      "confidence": 0.03409455344080925
+    },
+    {
+      "object": "Window",
+      "confidence": 0.03403538465499878
+    },
+    {
+      "object": "Skyscraper",
+      "confidence": 0.03367416933178902
+    },
+    {
+      "object": "Tree",
+      "confidence": 0.033659644424915314
+    },
+    {
+      "object": "Window",
+      "confidence": 0.03332758694887161
+    },
+    {
+      "object": "Tree",
+      "confidence": 0.033318355679512024
+    }
+  ]
