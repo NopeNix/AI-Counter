@@ -204,7 +204,8 @@
                         headers: {
                           'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify(bodyData)
+                        body: JSON.stringify(bodyData),
+                        timeout: 300000
                       })
                       .then(response => {
                         if (!response.ok) {
