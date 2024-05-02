@@ -73,7 +73,7 @@ RUN pwsh -c "Install-Module SimplySql -force"
 RUN pwsh -c "Install-Module -Name Pode -force"
 
 # Copy files 
-COPY ./data/* /data/
+COPY ./data /data
 
 # Start API on container start
 CMD pwsh -f /data/Start-API.ps1

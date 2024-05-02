@@ -1,10 +1,10 @@
 # FAKE function for dev
-function Get-AIAnalysis {
+<#function Get-AIAnalysis {
     return ((Get-Content ($PSScriptRoot + "/../misc/testdata.json") -Raw) | ConvertFrom-Json)
 }
-
-#Real Function
-<# function Get-AIAnalysis {
+#>
+# REAL Function
+function Get-AIAnalysis {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
@@ -12,34 +12,45 @@ function Get-AIAnalysis {
         $URL
     )
 
-    $pinfo = New-Object System.Diagnostics.ProcessStartInfo
-    $pinfo.FileName = "python"
-    $pinfo.RedirectStandardError = $true
-    $pinfo.RedirectStandardOutput = $true
-    $pinfo.UseShellExecute = $false
-    $pinfo.Arguments = ("/data/script.py " + $URL)
-    $p = New-Object System.Diagnostics.Process
-    $p.StartInfo = $pinfo
-    $p.Start() | Out-Null
-    $p.WaitForExit()
-    $stdout = $p.StandardOutput.ReadToEnd()
-    #$stderr = $p.StandardError.ReadToEnd()
+    try {
+        $pinfo = New-Object System.Diagnostics.ProcessStartInfo
+        $pinfo.FileName = "python"
+        $pinfo.RedirectStandardError = $true
+        $pinfo.RedirectStandardOutput = $true
+        $pinfo.UseShellExecute = $false
+        $pinfo.Arguments = ("/data/script.py " + $URL)
+        $p = New-Object System.Diagnostics.Process
+        $p.StartInfo = $pinfo
+        $p.Start() | Out-Null
+        $p.WaitForExit()
+        $stdout = $p.StandardOutput.ReadToEnd()
+        $stderr = $p.StandardError.ReadToEnd()
+        if ($null -eq $stderr -or "" -eq $stderr) {
+            Throw $stderr
+        }
 
-    # Use regex to find the JSON part
-    $jsonObject = [regex]::Match($stdout, '\{(?:[^{}]|(?<o>\{)|(?<-o>\}))+(?(o)(?!))\}').Value
+        # Use regex to find the JSON part
+        $jsonObject = [regex]::Match($stdout, '\{(?:[^{}]|(?<o>\{)|(?<-o>\}))+(?(o)(?!))\}').Value
 
-    # Output the captured output
-    Return (($jsonObject | convertfrom-json).detections)
-}  #>
-
-
+        # Output the captured output
+        if ((($jsonObject | convertfrom-json).detections.count) -ne 0) {
+            Return (($jsonObject | convertfrom-json).detections)
+        }
+        else {
+            Return ('{ "Error":  "No Objects found on picture" }')  
+        }
+    }
+    catch {
+        Return ('{ "Error":  "' + $_.Exception.Message + '" }')  
+    }
+}  
 
 ############################################################################################
 
 function Get-NavMenuHTML {
     param (
         [Parameter()]
-        [ValidateSet('scheduled-counts', 'info', 'swagger','phpMyAdmin')]
+        [ValidateSet('scheduled-counts', 'info', 'swagger', 'phpMyAdmin')]
         [string]
         $ActiveItem
     )
@@ -75,5 +86,247 @@ function Get-NavMenuHTML {
             </div>
         </nav>')
 
-        Return $HTML
+    Return $HTML
+}
+
+function Get-AvailableAiModels {
+    param (
+        [Parameter()]
+        [switch]
+        $OutputAsHTMLOptions,
+
+        [Parameter()]
+        [switch]
+        $OutputAsHTMLCards
+    )
+
+    if ($OutputAsHTMLOptions) {
+        Return ('<option>openimages_v4/ssd/mobilenet_v2/1</option>
+        <option>tensorflow/efficientdet/tensorFlow2/d0</option>')
+    }
+    elseif ($OutputAsHTMLCards) {
+        Return ('<div class="card-group">
+        <div class="card" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">mobilenet_v2</h5>
+          <h6 class="card-subtitle mb-2 text-body-secondary"><i>by Google</i></h6>
+          <p class="card-text">SSD-based object detection model trained on Open Images V4 with ImageNet pre-trained MobileNet V2 as image feature extractor.</p>
+          <a href="https://www.kaggle.com/models/google/mobilenet-v2/tensorFlow1/openimages-v4-ssd-mobilenet-v2/1?tfhub-redirect=true" target="_blank" class="card-link">Further Info</a>
+        </div>
+      </div>
+      <div class="card" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">efficientdet</h5>
+          <h6 class="card-subtitle mb-2 text-body-secondary"><i>by tensorflow</i></h6>
+          <p class="card-text">EfficientDet Object detection model (SSD with EfficientNet-b0 + BiFPN feature extractor, shared box predictor and focal loss), trained on COCO 2017 dataset.</p>
+          <a href="https://www.kaggle.com/models/tensorflow/efficientdet/tensorFlow2/d0/1?tfhub-redirect=true" target="_blank" class="card-link">Further Info</a>
+        </div>
+      </div>
+      </div>')
+    } 
+    else {
+        Return ("openimages_v4/ssd/mobilenet_v2/1", "tensorflow/efficientdet/tensorFlow2/d0")
+    }
+}
+
+function Get-ToastHTML {
+    param (
+        [Parameter()]
+        [string]
+        $ToastHeader,
+
+        [Parameter()]
+        [string]
+        $ToastIcon,
+
+        [Parameter()]
+        [string]
+        $ToastBody
+    )
+    
+    return (('<div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                ' + $ToastIcon + '
+            <strong class="me-auto">' + $ToastHeader + '</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                ' + $ToastBody + '
+            </div>
+        </div>
+    </div>'))
+
+}
+
+function Set-ScheduledCountJob {
+    param (
+        [Parameter()]
+        [Int]
+        $ID,
+    
+        [Parameter()]
+        [String]
+        $JobName,
+
+        [Parameter()]
+        [String]
+        $Model,
+
+        [Parameter()]
+        [String]
+        $Object,
+
+        [Parameter()]
+        [Int]
+        $FrequencyMinutes,
+
+        [Parameter()]
+        [String]
+        $URL,
+
+        [Parameter()]
+        [bool]
+        $Enabled = $true,
+
+        [Parameter()]
+        [switch]
+        $Enable,
+
+        [Parameter()]
+        [switch]
+        $Disable
+    )
+
+    if ($Enabled) { $EnabledString = 1 } else { $EnabledString = 0 }
+
+    if ($Enable -and $null -ne $ID) {
+        Invoke-SqlUpdate -Query ("UPDATE ``scheduledcounts`` SET ``enabled`` = '1' WHERE ``scheduledcounts``.``id`` = " + $ID + ";")
+        Return 0
+    }
+    elseif ($Disable -and $null -ne $ID) {
+        Invoke-SqlUpdate -Query ("UPDATE ``scheduledcounts`` SET ``enabled`` = '0' WHERE ``scheduledcounts``.``id`` = " + $ID + ";")
+        Return 0
+    }
+
+    Open-MySqlConnection -CommandTimeout 5000 -Server $env:MariaDBHost -Port $env:MariaDBPort -Credential (New-Object System.Management.Automation.PSCredential ($env:MariaDBUsername, (ConvertTo-SecureString $env:MariaDBPassword -AsPlainText -Force))) -Database $env:MariaDBDatabase -WarningAction SilentlyContinue -ErrorAction Stop
+    if ($null -ne $ID -and $ID -ne "" -and !$Enable -and !$Disable) {
+        try {
+            Invoke-SqlUpdate -Query ("UPDATE `scheduledcounts` SET `jobname` = '" + $JobName + "', `model` = '" + $Model + "', `object` = '" + $Object + "', `frequencymin` = '" + $FrequencyMinutes + "', `URL` = '" + $URL + "', `enabled` = '" + $EnabledString + "' WHERE `scheduledcounts`.`id` = " + $ID + ";") -ErrorAction Stop
+            Return 0
+        }
+        catch {
+            Throw $_.Exception.Message
+        }
+
+    }
+    else {
+        try {
+            Invoke-SqlUpdate -Query ("INSERT INTO ``scheduledcounts`` (``id``, ``jobname``, ``model``, ``object``, ``frequencymin``, ``URL``, ``enabled``, ``created``, `lastchanged`) 
+            VALUES (NULL, '" + $JobName + "', '" + $Model + "', '" + $Object + "', '" + $FrequencyMinutes + "', '" + $URL + "', '" + $EnabledString + "', current_timestamp(), current_timestamp());") -ErrorAction Stop
+            Return 0
+        }
+        catch {
+            Throw $_.Exception.Message
+        }
+    }
+}
+
+function Get-ScheduledCountJob {
+    param (
+        [Parameter()]
+        [switch]
+        $AsHTMLTable
+    )
+
+    Open-MySqlConnection -CommandTimeout 5000 -Server $env:MariaDBHost -Port $env:MariaDBPort -Credential (New-Object System.Management.Automation.PSCredential ($env:MariaDBUsername, (ConvertTo-SecureString $env:MariaDBPassword -AsPlainText -Force))) -Database $env:MariaDBDatabase -WarningAction SilentlyContinue -ErrorAction Stop
+    
+    try {
+        $Return = Invoke-SqlQuery -Query "SELECT * FROM ``scheduledcounts``" -ErrorAction Stop
+    }
+    catch {
+        $Return = $_.Exception.Message
+    }
+    
+    if ($AsHTMLTable) {
+        $ReturnHTMLTable = ('<table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Jobname</th>
+                <th scope="col">AI Model</th>
+                <th scope="col">Object</th>
+                <th scope="col">Frequency</th>
+                <th scope="col">URL</th>
+                <th scope="col">Datatable Row Count</th>
+                <th scope="col">Last count Date/Time</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            ')
+        $Return | ForEach-Object {
+            switch ($_.model) {
+                "openimages_v4/ssd/mobilenet_v2/1" { $ModelLabel = "mobilenet" }
+                "tensorflow/efficientdet/tensorFlow2/d0" { $ModelLabel = "efficientdet" }
+                Default { $ModelLabel = $_.model }
+            }
+            switch ($_.enabled) {
+                $false { $StatusIconButton = '<button type="submit" class="btn btn-outline-light" data-toggle="tooltip" data-placement="top" title="Scheduled Task is turned off right now, click to turn on"><i class="bi bi-play"></i></button>' }
+                $True { $StatusIconButton = '<button type="submit" class="btn btn-outline-light" data-toggle="tooltip" data-placement="top" title="Scheduled Task is turned on right now, click to turn off"><i class="bi bi-pause"></i></button>' }
+            }
+            $ReturnHTMLTable = $ReturnHTMLTable + ('<tr>
+            <th scope="row">' + $_.id + '</th>
+            <td><b>' + $_.jobname + '</b></td>
+            <td><b>' + $ModelLabel + '</b></td>
+            <td>' + $_.object + '</td>
+            <td>' + $_.frequencymin + ' min</td>
+            <td ><a href="' + $_.URL + '"><p class="text-break">' + $_.URL + '</p></a></td>
+            <td>tbp</td>
+            <td>tbp</td>
+            <td>
+                <div class="btn-group" role="group">
+                <!-- <button type="submit" class="btn btn-outline-primary" data-toggle="tooltip" data-placement="top" title="Edit"><i class="bi bi-pencil"></i></button> -->
+                <button type="button" class="btn btn-outline-secondary"data-toggle="tooltip" data-placement="top" title="Inspect collected Data"><i
+                class="bi bi-eye"></i></button>
+                <button type="button" class="btn btn-outline-secondary" data-toggle="tooltip" data-placement="top" title="Download all collected Data as CSV"><i
+                class="bi bi-download"></i></button>
+                <form action="/" method="post">
+                    ' + $StatusIconButton + '
+                    <input type="hidden" name="action" value="changestate">
+                    <input type="hidden" name="id" value="' + $_.id + '">
+                </form>
+                <form action="/" method="post">
+                        <button type="submit" class="btn btn-outline-danger"><i class="bi bi-trash3"></i></button>
+                        <input type="hidden" name="action" value="delete">
+                        <input type="hidden" name="id" value="' + $_.id + '" required>
+                    </form>
+                </div>
+            </td>
+        </tr>
+        ')
+        }
+        $ReturnHTMLTable = $ReturnHTMLTable + ('</tbody>
+    </table>')
+        $Return = $ReturnHTMLTable
+    } 
+
+    Return $Return
+}
+
+function Remove-ScheduledCountJob {
+    param (
+        [Parameter(Mandatory = $true)]
+        [Int]
+        $Id
+    )
+        
+    try {
+        Open-MySqlConnection -CommandTimeout 5000 -Server $env:MariaDBHost -Port $env:MariaDBPort -Credential (New-Object System.Management.Automation.PSCredential ($env:MariaDBUsername, (ConvertTo-SecureString $env:MariaDBPassword -AsPlainText -Force))) -Database $env:MariaDBDatabase -WarningAction SilentlyContinue -ErrorAction Stop
+        $Return = Invoke-SqlUpdate -Query ("DELETE FROM scheduledcounts WHERE `scheduledcounts`.`id` = " + $Id)
+        Return $Return
+    }
+    catch {
+        Return $_.Exception.Message
+    }
 }

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: db
--- Generation Time: Apr 26, 2024 at 10:33 AM
+-- Generation Time: Apr 29, 2024 at 06:29 PM
 -- Server version: 11.4.1-MariaDB-1:11.4.1+maria~ubu2204
 -- PHP Version: 8.2.15
 
@@ -14,6 +14,8 @@ SET time_zone = "+00:00";
 --
 -- Database: `ai-people-counter`
 --
+CREATE DATABASE IF NOT EXISTS `ai-people-counter` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `ai-people-counter`;
 
 -- --------------------------------------------------------
 
@@ -24,13 +26,14 @@ SET time_zone = "+00:00";
 CREATE TABLE `scheduledcounts` (
   `id` int(11) NOT NULL,
   `jobname` tinytext NOT NULL,
+  `model` text NOT NULL,
   `object` tinytext NOT NULL,
   `frequencymin` mediumint(9) NOT NULL,
   `URL` text NOT NULL,
   `enabled` tinyint(1) NOT NULL,
   `created` datetime NOT NULL DEFAULT current_timestamp(),
   `lastchanged` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 --
 -- Indexes for dumped tables
