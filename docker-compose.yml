@@ -26,7 +26,8 @@ services:
           path: docker-compose.yml
         - action: rebuild
           path: /data/Start-API.ps1
-
+        - action: rebuild
+          path: dockerfile
 
   db:
     image: mariadb:11.4.1-rc

@@ -1,15 +1,21 @@
-# FAKE function for dev
+# FAKE Get-AIAnalysis (for Dev)
 <#function Get-AIAnalysis {
     return ((Get-Content ($PSScriptRoot + "/../misc/testdata.json") -Raw) | ConvertFrom-Json)
 }
 #>
-# REAL Function
+
+# REAL Get-AIAnalysis
 function Get-AIAnalysis {
-    [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
         [string]
-        $URL
+        $URL,
+
+        [Parameter(HelpMessage = "mobilenet is a precice one which takes longer. efficientdet is a quick small allrounder")]
+        [ValidateSet('https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1', 
+            'tensorflow/efficientdet/tensorFlow2/d0')]
+        [string]
+        $Model = 'tensorflow/efficientdet/tensorFlow2/d0'
     )
 
     try {
@@ -18,26 +24,24 @@ function Get-AIAnalysis {
         $pinfo.RedirectStandardError = $true
         $pinfo.RedirectStandardOutput = $true
         $pinfo.UseShellExecute = $false
-        $pinfo.Arguments = ("/data/script.py " + $URL)
+        $pinfo.Arguments = ("/data/script.py --url " + $URL + " --model " + $Model)
         $p = New-Object System.Diagnostics.Process
         $p.StartInfo = $pinfo
         $p.Start() | Out-Null
         $p.WaitForExit()
         $stdout = $p.StandardOutput.ReadToEnd()
         $stderr = $p.StandardError.ReadToEnd()
-        if ($null -eq $stderr -or "" -eq $stderr) {
-            Throw $stderr
-        }
-
+        
         # Use regex to find the JSON part
         $jsonObject = [regex]::Match($stdout, '\{(?:[^{}]|(?<o>\{)|(?<-o>\}))+(?(o)(?!))\}').Value
-
+        
         # Output the captured output
         if ((($jsonObject | convertfrom-json).detections.count) -ne 0) {
-            Return (($jsonObject | convertfrom-json).detections)
+            #Return ((($jsonObject | convertfrom-json).detections | Select-Object class_label, score))
+            Return ((($jsonObject | convertfrom-json).detections) | Select-Object class_label, score)
         }
         else {
-            Return ('{ "Error":  "No Objects found on picture" }')  
+            Return ('{ "Error":  "No Objects found on picture, script output: ' + $stderr + ' ' + $stderr + '" }')  
         }
     }
     catch {
@@ -50,7 +54,7 @@ function Get-AIAnalysis {
 function Get-NavMenuHTML {
     param (
         [Parameter()]
-        [ValidateSet('scheduled-counts', 'info', 'swagger', 'phpMyAdmin')]
+        [ValidateSet('scheduled-counts', 'test', 'info', 'swagger', 'phpMyAdmin')]
         [string]
         $ActiveItem
     )
@@ -58,6 +62,7 @@ function Get-NavMenuHTML {
     switch ($ActiveItem) {
         "scheduled-counts" { $scheduledCountsActiveFlag = "active" }
         "info" { $infoActiveFlag = "active" }
+        "test" { $testActiveFlag = "active" }
         "swagger" { $swaggerActiveFlag = "active" }
         Default {}
     }
@@ -73,7 +78,10 @@ function Get-NavMenuHTML {
                 <div class="collapse navbar-collapse" id="navbar">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link ' + $scheduledCountsActiveFlag + '" aria-current="page" href="/">Scheduled Counts</a>
+                            <a class="nav-link ' + $scheduledCountsActiveFlag + '" href="/">Scheduled Counts</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link ' + $testActiveFlag + '" href="/test">Test</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link ' + $infoActiveFlag + '" href="/info">Info</a>
@@ -101,7 +109,7 @@ function Get-AvailableAiModels {
     )
 
     if ($OutputAsHTMLOptions) {
-        Return ('<option>openimages_v4/ssd/mobilenet_v2/1</option>
+        Return ('<option>https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1</option>
         <option>tensorflow/efficientdet/tensorFlow2/d0</option>')
     }
     elseif ($OutputAsHTMLCards) {
@@ -125,7 +133,7 @@ function Get-AvailableAiModels {
       </div>')
     } 
     else {
-        Return ("openimages_v4/ssd/mobilenet_v2/1", "tensorflow/efficientdet/tensorFlow2/d0")
+        Return ("https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1", "tensorflow/efficientdet/tensorFlow2/d0")
     }
 }
 
@@ -329,4 +337,54 @@ function Remove-ScheduledCountJob {
     catch {
         Return $_.Exception.Message
     }
+}
+
+
+function Get-GPUInfo {
+    param (
+        [Parameter()]
+        [switch]
+        $AsHTMLTable
+    )
+
+    try {
+        $pinfo = New-Object System.Diagnostics.ProcessStartInfo
+        $pinfo.FileName = "lshw"
+        $pinfo.RedirectStandardError = $true
+        $pinfo.RedirectStandardOutput = $true
+        $pinfo.UseShellExecute = $false
+        $pinfo.Arguments = ("-C display -json")
+        $p = New-Object System.Diagnostics.Process
+        $p.StartInfo = $pinfo
+        $p.Start() | Out-Null
+        $p.WaitForExit()
+        $stdout = $p.StandardOutput.ReadToEnd()
+        $stderr = $p.StandardError.ReadToEnd()
+
+        $Return = $stdout | ConvertFrom-Json
+        if ($AsHTMLTable) {
+            $HTMLTable = "<table>"
+            $Return | Get-Member -Type NoteProperty | ForEach-Object {
+                $HTMLTable += "<tr>"
+                $HTMLTable += "    <td><b>" + $_.name + "</b></td>"
+                if ($_.name -ieq "configuration" -or $_.name -ieq "capabilities") {
+                    $HTMLTable += "    <td>" + ($Return.($_.name) | ConvertTo-Html -Fragment) + "</td>"
+                } else {
+                    $HTMLTable += "    <td>" + $Return.($_.name) + "</td>"
+                }
+                $HTMLTable += "</tr>"
+            }
+            $HTMLTable += "</table>"
+            
+            $Return.configuration = $Return.configuration | ConvertTo-Html -Fragment
+            $Return.capabilities = $Return.capabilities | ConvertTo-Html -Fragment
+            $Return = $HTMLTable -join ""
+        }
+        Return $Return
+    }
+    catch {
+        Return $_.Exception.Message
+    }
+    
+
 }
