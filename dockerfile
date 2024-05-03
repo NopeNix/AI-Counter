@@ -4,6 +4,9 @@ FROM tensorflow/tensorflow
 RUN pip install tensorflow
 RUN pip install tensorflow_hub
 RUN pip install matplotlib
+RUN pip install kagglehub
+RUN apt update
+RUN apt install lshw -y
 
 ## INSTALL POWERSHELL
 # Define Args for the needed to add the package
@@ -73,7 +76,7 @@ RUN pwsh -c "Install-Module SimplySql -force"
 RUN pwsh -c "Install-Module -Name Pode -force"
 
 # Copy files 
-COPY ./data/* /data/
+COPY ./data /data
 
 # Start API on container start
 CMD pwsh -f /data/Start-API.ps1

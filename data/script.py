@@ -130,12 +130,11 @@ def detect_img(image_url, model_url):
 parser = argparse.ArgumentParser(description="Run a TensorFlow detector model on an image from a URL.")
 parser.add_argument("--url", required=True, help="URL of the image to process.")
 parser.add_argument("--model", default="https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1", help="URL of the TensorFlow Hub model to use.")
-
 args = parser.parse_args()
 
 # Starting detection
 print(f"Starting to detect image: {args.url}")
 # Load class labels
-class_labels = load_class_labels('data/efficientdet_classes.json')
+class_labels = load_class_labels('/data/efficientdet_classes.json')
 
 detect_img(args.url, args.model)

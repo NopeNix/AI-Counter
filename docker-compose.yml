@@ -6,14 +6,33 @@ services:
       - 8079:8081
     environment:
       - MariaDBHost=db
+      - MariaDBPort=3306
       - MariaDBUsername=root
       - MariaDBPassword=notSecureChangeMe
       - MariaDBDatabase=ai-people-counter
     networks:
       - int
+    depends_on:
+      - db
+    develop:
+      watch:
+        - action: sync
+          path: ./data/html
+          target: /data/html
+        - action: sync
+          path: ./data
+          target: /data
+        - action: rebuild
+          path: docker-compose.yml
+        - action: rebuild
+          path: /data/Start-API.ps1
+        - action: rebuild
+          path: dockerfile
 
   db:
     image: mariadb:11.4.1-rc
+    ports:
+      - 3369:3306
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: notSecureChangeMe
