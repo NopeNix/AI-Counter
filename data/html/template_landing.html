@@ -167,69 +167,6 @@
                 </div>
 
 
-                <!-- ########################################################################
-                     TEMP TEST
-                     ######################################################################## -->
-                <div class="container">
-                    <h1>Test</h1>
-                    <div class="form-group">
-                      <label for="urlInput">Enter URL:</label>
-                      <input type="text" class="form-control" id="urlInput" placeholder="Enter URL">
-                    </div>
-                    <p></p>
-                    <div class="form-group">
-                      <label for="minconfidence">Minimum Confidence:</label>
-                      <input type="number" class="form-control" id="minconfidence" value="0.1" >
-                    </div>
-                    <button id="fetchButton" class="btn btn-primary">Analyze URL</button>
-                    <hr>
-                    <div id="responseContainer"></div>
-                  </div>
-                                
-                  <script>
-                    document.getElementById('fetchButton').addEventListener('click', fetchData);
-                
-                    function fetchData() {
-                      const url = document.getElementById('urlInput').value;
-                      const minconfidence = document.getElementById('minconfidence').value;
-                      const bodyData = { 
-                        "URL": url,
-                        "minconfidence": minconfidence,
-                        "astable" : 1
-                    };
-
-                      document.getElementById('responseContainer').innerHTML = '<p><div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden"></span></div> AI is analyzing... (be patient this can take a couple of seconds or even minutes)...</p>';
-                      fetch('/api/Analyze-URL', {
-                        method: 'POST',
-                        headers: {
-                          'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(bodyData),
-                        timeout: 300000
-                      })
-                      .then(response => {
-                        if (!response.ok) {
-                          throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                      })
-                      .then(htmlContent => {
-                        // Insert HTML content into the response container div
-                        document.getElementById('responseContainer').innerHTML = htmlContent;
-                      })
-                      .catch(error => {
-                        console.error('There was a problem with the fetch operation:', error);
-                        document.getElementById('responseContainer').innerText = 'Error: ' + error.message;
-                      });
-                    }
-                  </script>
-
-                <!-- ########################################################################
-                     TEMP TEST END 
-                     ########################################################################  -->
-
-
-
     </main>
     <script lang="javascript">
         const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')

@@ -4,6 +4,9 @@ FROM tensorflow/tensorflow
 RUN pip install tensorflow
 RUN pip install tensorflow_hub
 RUN pip install matplotlib
+RUN pip install kagglehub
+RUN apt update
+RUN apt install lshw -y
 
 ## INSTALL POWERSHELL
 # Define Args for the needed to add the package

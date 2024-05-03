@@ -119,6 +119,19 @@ Start-PodeServer {
         Write-PodeHtmlResponse $HTML
     }
 
+    # Test Page
+    Add-PodeRoute -Method Get, Post -Path '/test' -ScriptBlock {
+        # Load Functions
+        . ($PSScriptRoot + "/functions.ps1")
+
+        # Load and fill HTML Template
+        $HTML = Get-Content ($PSScriptRoot + "/html/template_test.html") -raw
+        $HTML = $HTML.Replace("///NAVBAR", (Get-NavMenuHTML -ActiveItem "test"))
+        $HTML = $HTML.Replace("///AIMODELSCARDS", (Get-AvailableAiModels -OutputAsHTMLCards))
+        $HTML = $HTML.Replace("///OPTIONSAvailableAiModels", (Get-AvailableAiModels -OutputAsHTMLOptions))
+        Write-PodeHtmlResponse $HTML
+    }
+
     # Info Page
     Add-PodeRoute -Method Get, Post -Path '/info' -ScriptBlock {
         # Load Functions
@@ -128,6 +141,7 @@ Start-PodeServer {
         $HTML = Get-Content ($PSScriptRoot + "/html/template_info.html") -raw
         $HTML = $HTML.Replace("///NAVBAR", (Get-NavMenuHTML -ActiveItem "info"))
         $HTML = $HTML.Replace("///AIMODELSCARDS", (Get-AvailableAiModels -OutputAsHTMLCards))
+        $HTML = $HTML.Replace("///GPUINFO", (Get-GPUInfo -AsHTMLTable).Replace('<table>', '<table class="table table-striped">'))
         if ($webevent.Method -ieq "post") {
             $HTML = $HTML.Replace("///POSTVARIABLES", ("<h2>Post Variables</h2>" + ($webevent.data | ConvertTo-Html -Fragment).Replace('<table>', '<table class="table">') + "</pre>"))
         }
@@ -158,15 +172,15 @@ Start-PodeServer {
     } -PassThru | Set-PodeOARouteInfo -Summary 'Get availalbe AIs for processing Images' -Tag "General"
 
     # API : Analyze-URL
-    New-PodeOAStringProperty -Name 'Jobname' -Description "URL to image which should be analyized by the AI, e.g. https://webcams.com/queue_entrance2.jpeg" -Required | ConvertTo-PodeOAParameter -In Query | Add-PodeOAComponentParameter -Name 'Set' 
+    New-PodeOAStringProperty -Name 'URL' -Description "URL to image which should be analyized by the AI, e.g. https://webcams.com/queue_entrance2.jpeg" -Required | ConvertTo-PodeOAParameter -In Query | Add-PodeOAComponentParameter -Name 'Set2' 
     Add-PodeRoute -Method Post -Path "/api/Analyze-URL" -ScriptBlock {
         # Load Functions
         . ($PSScriptRoot + "/functions.ps1")
 
         if ($null -ne $webevent.data.URL -and $webevent.data.URL -ne "") {
-            $AIResult = Get-AIAnalysis -URL $webevent.data.URL
+            $AIResult = Get-AIAnalysis -URL $webevent.data.URL -Model $webevent.data.model
             if ($null -ne $webevent.data.minconfidence -or $webevent.data.minconfidence -ne "") {
-                $AIResult = $AIResult | Where-Object { $_.confidence -ge $webevent.data.minconfidence }
+                $AIResult = $AIResult | Where-Object { $_.score -ge $webevent.data.minconfidence }
             }
             if ($webevent.data.astable -ne 1) {
                 Write-PodeJsonResponse (($AIResult | ConvertTo-Json))
@@ -178,7 +192,7 @@ Start-PodeServer {
         else {
             Write-PodeJsonResponse ((('{ "Error":  "Parameter URL is missing in Body" }') | ConvertTo-Json))
         }
-    } -PassThru | Set-PodeOARouteInfo -Summary 'Analyze URL' -Tag "General" -PassThru | Set-PodeOARequest -Parameters @(ConvertTo-PodeOAParameter -Reference 'Set' )
+    } -PassThru | Set-PodeOARouteInfo -Summary 'Analyze URL' -Tag "General" -PassThru | Set-PodeOARequest -Parameters @(ConvertTo-PodeOAParameter -Reference 'Set2' )
 
     # API : Get-ScheduledCountJob
     Add-PodeRoute -Method Get -Path "/api/Get-ScheduledCountJob" -ScriptBlock {
