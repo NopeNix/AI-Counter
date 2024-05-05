@@ -8,3 +8,6 @@ ENV/
 env.bak/
 venv.bak/
 /helper-scripts
+
+# Pycache
+__pycache__/
