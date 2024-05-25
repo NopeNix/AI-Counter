@@ -61,7 +61,7 @@ Start-PodeServer {
     Add-PodeEndpoint -Address $env:PodeExposureAddress -Port 8081 -Protocol Http
 
     #Initialize OpenApi
-    Enable-PodeOpenApi -Path '/docs/openapi' -Title 'AI Object Counter - Swagger aPI Documentation' -Description "" -RouteFilter '/api/*'
+    Enable-PodeOpenApi -Path '/docs/openapi' -Title 'Swagger API Documentation' -Description "" -RouteFilter '/api/*' -Version 0.420.69
 
     # Ensable Swagger
     Enable-PodeOpenApiViewer -Type Swagger -Path '/swagger' -OpenApiUrl '/docs/openapi' -DarkMode

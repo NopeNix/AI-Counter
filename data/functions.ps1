@@ -17,23 +17,26 @@ function Get-AIAnalysis {
         [string]
         $Model = 'tensorflow/efficientdet/tensorFlow2/d0'
     )
-
+    
     try {
-        $pinfo = New-Object System.Diagnostics.ProcessStartInfo
-        $pinfo.FileName = "python"
-        $pinfo.RedirectStandardError = $true
-        $pinfo.RedirectStandardOutput = $true
-        $pinfo.UseShellExecute = $false
-        $pinfo.Arguments = ("/data/script.py --url " + $URL + " --model " + $Model)
-        $p = New-Object System.Diagnostics.Process
-        $p.StartInfo = $pinfo
-        $p.Start() | Out-Null
-        $p.WaitForExit()
-        $stdout = $p.StandardOutput.ReadToEnd()
-        $stderr = $p.StandardError.ReadToEnd()
+        #$pinfo = New-Object System.Diagnostics.ProcessStartInfo
+        #$pinfo.FileName = "python"
+        #$pinfo.RedirectStandardError = $true
+        #$pinfo.RedirectStandardOutput = $true
+        #$pinfo.UseShellExecute = $false
+        #$pinfo.Arguments = ("/data/main.py --url " + $URL + " --model " + $Model)
+        #$p = New-Object System.Diagnostics.Process
+        #$p.StartInfo = $pinfo
+        #$p.Start() #| Out-Null
+        #$p.WaitForExit()
+        #$stdout = $p.StandardOutput.ReadToEnd()
+        #$stderr = $p.StandardError.ReadToEnd()
         
+        $stdout = python /data/main.py --url $URL --model $Model
+
         # Use regex to find the JSON part
         $jsonObject = [regex]::Match($stdout, '\{(?:[^{}]|(?<o>\{)|(?<-o>\}))+(?(o)(?!))\}').Value
+        #$jsonObject = $stdout
         
         # Output the captured output
         if ((($jsonObject | convertfrom-json).detections.count) -ne 0) {
@@ -41,7 +44,7 @@ function Get-AIAnalysis {
             Return ((($jsonObject | convertfrom-json).detections) | Select-Object class_label, score)
         }
         else {
-            Return ('{ "Error":  "No Objects found on picture, script output: ' + $stderr + ' ' + $stderr + '" }')  
+            Return ('{ "Error":  "No Objects found on picture, script output: ' + $stdout + ' ' + $stderr + '" }')  
         }
     }
     catch {
