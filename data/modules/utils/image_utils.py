@@ -52,11 +52,13 @@ class ImageProcessor:
         Returns:
             tf.Tensor: Tensor representation of the image.
         """
+        # Specify the format manually if the format is missing
+        format_to_use = image.format if image.format else 'JPEG'
+
         # Convert the PIL image to bytes
         output = BytesIO()
-        image.save(output, format=image.format)
+        image.save(output, format=format_to_use)
         image_bytes = output.getvalue()
-
         # Decode the image into a tensor
         img = tf.io.decode_image(image_bytes, channels=3, expand_animations=False)
 
