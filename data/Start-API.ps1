@@ -68,55 +68,63 @@ Start-PodeServer {
     
     # Landing Page
     Add-PodeRoute -Method Get, Post -Path '/' -ScriptBlock {
-        # Load Functions
-        . ($PSScriptRoot + "/functions.ps1")
+        try {
 
-        # Perform Post Action
-        $PostActionToast = ""
-        if ($webevent.Method -ieq "post") {
-            switch ($webevent.data.action) {
-                "add" { 
-                    try {
-                        Set-ScheduledCountJob -JobName $webevent.data.jobname -Model $webevent.data.model -Object $webevent.data.object -FrequencyMinutes $webevent.data.frequency -URL $webevent.data.url
-                        $PostActionToast += Get-ToastHTML -ToastHeader '<i style="color: #46a832" class="bi bi-check-square"></i> Success' -ToastIcon '' -ToastBody ("Job <b>" + $webevent.data.jobname + "</b> has been created!")
+            # Load Functions
+            . ($PSScriptRoot + "/functions.ps1")
+
+            # Perform Post Action
+            $PostActionToast = ""
+            if ($webevent.Method -ieq "post") {
+                switch ($webevent.data.action) {
+                    "add" { 
+                        try {
+                            Set-ScheduledCountJob -JobName $webevent.data.jobname -Model $webevent.data.model -Object $webevent.data.object -FrequencyMinutes $webevent.data.frequency -URL $webevent.data.url
+                            $PostActionToast += Get-ToastHTML -ToastHeader '<i style="color: #46a832" class="bi bi-check-square"></i> Success' -ToastIcon '' -ToastBody ("Job <b>" + $webevent.data.jobname + "</b> has been created!")
+                        }
+                        catch {
+                            $PostActionToast += Get-ToastHTML -ToastHeader '<i style="color: #8a242e" class="bi bi-x-square"></i> Failed!' -ToastIcon '' -ToastBody ("Job <b>" + $webevent.data.jobname + "</b> could not be created! " + $_.Exception.Message)
+                        }
                     }
-                    catch {
-                        $PostActionToast += Get-ToastHTML -ToastHeader '<i style="color: #8a242e" class="bi bi-x-square"></i> Failed!' -ToastIcon '' -ToastBody ("Job <b>" + $webevent.data.jobname + "</b> could not be created! " + $_.Exception.Message)
+                    "delete" { 
+                        $RemoveResult = Remove-ScheduledCountJob -Id $webevent.data.id
+                        if ($RemoveResult -ne "0") {
+                            $PostActionToast += Get-ToastHTML -ToastHeader '<i style="color: #46a832" class="bi bi-check-square"></i> Success' -ToastIcon '' -ToastBody ("Job <b>" + $webevent.data.id + "</b> has been removed!")
+                        }
+                        else {
+                            $PostActionToast += Get-ToastHTML -ToastHeader '<i style="color: #8a242e" class="bi bi-x-square"></i> Failed!' -ToastIcon '' -ToastBody ("Job <b>" + $webevent.data.id + "</b> could not be removed!")
+                        }
                     }
+                    "changestate" { 
+                        $CurrectState = (Get-ScheduledCountJob | Where-Object { $_.id -eq $webevent.data.id }).enabled
+                        if ($CurrectState -eq $false) {
+                            Set-ScheduledCountJob -ID $webevent.data.id -Enable
+                            $PostActionToast += Get-ToastHTML -ToastHeader '<i style="color: #46a832" class="bi bi-play">  Enabled</i> ' -ToastIcon '' -ToastBody ("Job <b>" + $webevent.data.id + "</b> has been Enabled! The System will now start collecting Data in the set Frequency.")
+                        }
+                        else {
+                            Set-ScheduledCountJob -ID $webevent.data.id -Disable
+                            $PostActionToast += Get-ToastHTML -ToastHeader '<i style="color: #46a832" class="bi bi-pause">  Disabled</i> ' -ToastIcon '' -ToastBody ("Job <b>" + $webevent.data.id + "</b> has been Disabled! Data will not be collected automatically")
+                        }
+                    }
+                    Default {}
                 }
-                "delete" { 
-                    $RemoveResult = Remove-ScheduledCountJob -Id $webevent.data.id
-                    if ($RemoveResult -ne "0") {
-                        $PostActionToast += Get-ToastHTML -ToastHeader '<i style="color: #46a832" class="bi bi-check-square"></i> Success' -ToastIcon '' -ToastBody ("Job <b>" + $webevent.data.id + "</b> has been removed!")
-                    }
-                    else {
-                        $PostActionToast += Get-ToastHTML -ToastHeader '<i style="color: #8a242e" class="bi bi-x-square"></i> Failed!' -ToastIcon '' -ToastBody ("Job <b>" + $webevent.data.id + "</b> could not be removed!")
-                    }
-                }
-                "changestate" { 
-                    $CurrectState = (Get-ScheduledCountJob | Where-Object { $_.id -eq $webevent.data.id }).enabled
-                    if ($CurrectState -eq $false) {
-                        Set-ScheduledCountJob -ID $webevent.data.id -Enable
-                        $PostActionToast += Get-ToastHTML -ToastHeader '<i style="color: #46a832" class="bi bi-play">  Enabled</i> ' -ToastIcon '' -ToastBody ("Job <b>" + $webevent.data.id + "</b> has been Enabled! The System will now start collecting Data in the set Frequency.")
-                    }
-                    else {
-                        Set-ScheduledCountJob -ID $webevent.data.id -Disable
-                        $PostActionToast += Get-ToastHTML -ToastHeader '<i style="color: #46a832" class="bi bi-pause">  Disabled</i> ' -ToastIcon '' -ToastBody ("Job <b>" + $webevent.data.id + "</b> has been Disabled! Data will not be collected automatically")
-                    }
-                }
-                Default {}
             }
+
+
+            # Load and fill HTML Template
+            $HTML = Get-Content ($PSScriptRoot + "/html/template_landing.html") -raw
+            $HTML = $HTML.Replace("///NAVBAR", (Get-NavMenuHTML -ActiveItem "scheduled-counts"))
+            $HTML = $HTML.Replace("///OPTIONSAvailableAiModels", (Get-AvailableAiModels -OutputAsHTMLOptions))
+            $HTML = $HTML.Replace("///POSTTOAST", ($PostActionToast -join ""))
+            $HTML = $HTML.Replace("///SCHEDULEDCOUNTJOB", (Get-ScheduledCountJob -AsHTMLTable))
+            Set-PodeSecurityAccessControl -Origin '*' -Methods '*' -Headers '*' -Duration 7200    
+            Write-PodeHtmlResponse $HTML
+
+
         }
-
-
-        # Load and fill HTML Template
-        $HTML = Get-Content ($PSScriptRoot + "/html/template_landing.html") -raw
-        $HTML = $HTML.Replace("///NAVBAR", (Get-NavMenuHTML -ActiveItem "scheduled-counts"))
-        $HTML = $HTML.Replace("///OPTIONSAvailableAiModels", (Get-AvailableAiModels -OutputAsHTMLOptions))
-        $HTML = $HTML.Replace("///POSTTOAST", ($PostActionToast -join ""))
-        $HTML = $HTML.Replace("///SCHEDULEDCOUNTJOB", (Get-ScheduledCountJob -AsHTMLTable))
-
-        Write-PodeHtmlResponse $HTML
+        catch {
+            Write-PodeTextResponse ("Ërror: ",$_.Exception.Message)
+        }
     }
 
     # Test Page

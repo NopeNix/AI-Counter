@@ -44,19 +44,19 @@
                     </div>
                 </div>
 
-                <!-- Modal Add -->
+                <!-- Modal: Add new Scheduled Job -->
                 <div class="modal fade" id="add-scheduled-count" data-bs-backdrop="static" data-bs-keyboard="false"
                     tabindex="-1" aria-labelledby="add-scheduled-countLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
-                            <div class="modal-header">
-                                <h1 class="modal-title fs-5" id="add-scheduled-countLabel">Add Scheduled Count</h1>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                            </div>
-
-                            <!-- Modal Body-->
                             <form action="/" method="post">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="add-scheduled-countLabel">Add Scheduled Count</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+
+                                <!-- Modal Body-->
                                 <div class="modal-body">
                                     <div class="row">
                                         <label for="jobname" class="col-form-label"><b>Jobname</b></label>
@@ -101,17 +101,21 @@
                                     <p></p>
                                     <div class="row">
                                         <label for="object" class="col-form-label"><b>URL</b></label>
-                                        <div class="col-sm-12">
-                                            <input type="url" class="form-control" id="URL" name="url" required>
-                                            <button type="button" class="btn btn-outline-primary"
-                                                data-bs-toggle="modal" data-bs-target="#test-ai">Test</button>
+                                        <div class="input-group mb-3">
+                                            <input type="text" class="form-control"
+                                                placeholder="https://picsum.photos/1920/1080" aria-label="URL"
+                                                aria-describedby="button-addon2" id="imagetocroppath">
+                                            <button class="btn btn-outline-primary" type="button" id="button-addon2"
+                                                data-bs-toggle="modal" data-bs-target="#testandcrop">Test &
+                                                Crop</button>
                                         </div>
-                                        <div class="col-auto">
-                                            <span class="form-text">
-                                                URL to image which should be analyized by the AI, e.g.
-                                                <i>https://webcams.com/queue_entrance2.jpeg</i>
-                                            </span>
-                                        </div>
+                                        <span class="form-text">
+                                            URL to image which should be analyized by the AI, e.g.
+                                            <i>https://picsum.photos/1920/1080</i>
+                                        </span>
+                                    </div>
+                                    <div class="col-auto">
+
                                     </div>
                                     <p></p>
                                     <div class="row">
@@ -128,6 +132,13 @@
                                         </div>
                                     </div>
                                 </div>
+                                    
+
+                                <!-- Crop Data-->
+                                <input type="hidden" name="x" id="cropX">
+                                <input type="hidden" name="y" id="cropY">
+                                <input type="hidden" name="width" id="cropWidth">
+                                <input type="hidden" name="height" id="cropHeight">
 
                                 <!-- Modal Footer-->
                                 <div class="modal-footer">
@@ -141,27 +152,25 @@
                     </div>
                 </div>
 
-                <!-- Modal Test -->
-                <div class="modal fade" id="test-ai" aria-hidden="true" aria-labelledby="test-aiLabel" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-                    <div class="modal-dialog">
+                <!-- Modal: Test & Crop -->
+                <div class="modal fade" id="testandcrop" aria-hidden="true" aria-labelledby="test-aiLabel"
+                    data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h1 class="modal-title fs-5" id="test-aiLabel">AI Test Result</h1>
+                                <h1 class="modal-title fs-5" id="add-scheduled-countLabel">Crop Image</h1>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                                     aria-label="Close"></button>
                             </div>
-
-                            <!-- Modal Body-->
                             <div class="modal-body">
-                                <p>TESTRESULTS</p>
+                                <div class="img-container">
+                                    <img id="imagetocrop" src="//TESTANDCROPPICPATH" alt="Picture" class="img-fluid">
+                                </div>
                             </div>
-
-                            <!-- Modal Footer-->
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary"
-                                    data-bs-toggle="modal" data-bs-target="#add-scheduled-count">Back</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-label="Close">Close</button>
+                                <button type="submit" class="btn btn-primary" id="cropButton">Crop & Submit</button>
                             </div>
-                            </form>
                         </div>
                     </div>
                 </div>
@@ -171,6 +180,38 @@
     <script lang="javascript">
         const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
         const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    </script>
+
+    <!-- Click Test & Crop Button -->
+    <script lang="javascript">
+        document.getElementById("button-addon2").addEventListener("click", function () {
+            document.getElementById("imagetocrop").src = document.getElementById("imagetocroppath").value;
+        });
+    </script>
+
+    <!-- Cropper.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script>
+        var cropper;
+
+        $('#testandcrop').on('shown.bs.modal', function () {
+            var image = document.getElementById('imagetocrop');
+            cropper = new Cropper(image, {
+                aspectRatio: 16 / 9,
+                viewMode: 2
+            });
+        }).on('hidden.bs.modal', function () {
+            cropper.destroy();
+            cropper = null;
+        });
+
+        document.getElementById('cropButton').addEventListener('click', function () {
+            var cropData = cropper.getData();
+            document.getElementById('cropX').value = cropData.x;
+            document.getElementById('cropY').value = cropData.y;
+            document.getElementById('cropWidth').value = cropData.width;
+            document.getElementById('cropHeight').value = cropData.height;
+        });
     </script>
 </body>
 
