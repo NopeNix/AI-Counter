@@ -1,8 +1,7 @@
-from PIL import Image
+from PIL import Image, ImageDraw
 from io import BytesIO
 from urllib.request import urlopen
 import tensorflow as tf
-
 
 class ImageProcessor:
     @staticmethod
@@ -71,3 +70,21 @@ class ImageProcessor:
             img = tf.image.convert_image_dtype(img, tf.float32)
 
         return img
+
+def draw_bounding_boxes(image: Image.Image, detections: list) -> Image.Image:
+    """
+    Draw bounding boxes on the image based on the detections.
+
+    Args:
+        image (PIL.Image.Image): The original image.
+        detections (list): List of detection dictionaries with keys 'box', 'class_label', and 'score'.
+
+    Returns:
+        PIL.Image.Image: The image with bounding boxes drawn.
+    """
+    draw = ImageDraw.Draw(image)
+    for det in detections:
+        box = det['box']
+        draw.rectangle(((box[0], box[1]), (box[2], box[3])), outline="red", width=2)
+        draw.text((box[0], box[1]), f"{det['class_label']} ({det['score']:.2f})", fill="red")
+    return image
