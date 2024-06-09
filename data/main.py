@@ -5,7 +5,7 @@ import json
 import base64
 from io import BytesIO
 
-from modules.utils.image_utils import ImageProcessor, draw_bounding_boxes
+from modules.utils.image_utils import ImageProcessor
 from modules.models.efficientdet_detector import EfficientDetDetector
 from modules.models.ssd_detector import SSDDetector
 
@@ -30,6 +30,10 @@ def detect_img(image_url, model_url, include_picture_with_boundingboxes, filter_
         print("Failed to process the image.")
         return
 
+    # Save the resized image to a path
+    resized_image_path = 'resized_image.jpg'
+    image.save(resized_image_path)
+
     # Loading the image tensor using the ImageProcessor class
     image_tensor = ImageProcessor.load_img_from_memory(image, model_url)
 
@@ -44,6 +48,9 @@ def detect_img(image_url, model_url, include_picture_with_boundingboxes, filter_
     # Parse the result JSON string into a dictionary
     result = json.loads(result_json)
 
+    # Print the result for debugging
+    print("Detection Results:")
+    print(json.dumps(result, indent=2))
 
     # Filter results based on class and confidence
     if filter_classes:
@@ -54,7 +61,25 @@ def detect_img(image_url, model_url, include_picture_with_boundingboxes, filter_
 
     # If bounding box image inclusion is requested
     if include_picture_with_boundingboxes:
-        image_with_boxes = draw_bounding_boxes(image, result['detections'])
+        # Check the structure of detections and extract bounding boxes and labels
+        bounding_boxes = []
+        labels = []
+        for det in result['detections']:
+            if 'box' in det:
+                box = det['box']
+                bounding_boxes.append((box[0], box[1], box[2], box[3]))
+                labels.append(det['class_label'])
+
+        # Debug: Print extracted bounding boxes and labels
+        print("Extracted Bounding Boxes:")
+        print(bounding_boxes)
+        print("Extracted Labels:")
+        print(labels)
+
+        # Draw the bounding boxes on the image with labels
+        image_with_boxes = ImageProcessor.draw_bounding_boxes(resized_image_path, bounding_boxes, labels=labels, normalized=True)
+
+        # Encode the image with bounding boxes for base64
         buffered = BytesIO()
         image_with_boxes.save(buffered, format="JPEG")
         img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
@@ -71,7 +96,8 @@ parser.add_argument("--url", required=True, help="URL of the image to process.")
 parser.add_argument("--model", default=DEFAULT_SSD_MODEL_URL, help="URL of the TensorFlow Hub model to use.")
 parser.add_argument("--include-picture-with-boundingboxes", action='store_true', help="Include image with bounding boxes in the output.")
 parser.add_argument("--filter", type=parse_filter_list, help="Filter detections by class labels, separated by commas.")
-parser.add_argument("--min-confidence", type=float, default=0.2, help="Minimum confidence threshold for detections.")
+parser.add_argument("--min-confidence", type=float, default=0.0, help="Minimum confidence threshold for detections.")
+
 
 args = parser.parse_args()
 
