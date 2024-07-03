@@ -30,8 +30,14 @@ git clone https://github.com/NopeNix/AI-Object-Counter.git
 ### 2. Run docker-compose
 (The ```docker-compose.yml``` also works with Portainer)
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
+**ALTERNATIVE FOR DEV** use docker compose watch:
+```bash
+docker compose watch
+```
+(this will automatically rebuild / sync files when there are changes)
+
 ### 3. Access Application
 http://localhost:8079
 

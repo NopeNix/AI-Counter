@@ -2,6 +2,7 @@ version: "3"
 services:
   ai-object-counter:
     build: .
+    restart: until-stopped
     ports:
       - 8079:8081
     environment:
@@ -14,11 +15,20 @@ services:
       - int
     depends_on:
       - db
+    develop:
+      watch:
+        - action: sync
+          path: ./data
+          target: /data
+        - action: rebuild
+          path: ./data/Start-API.ps1
+        - action: rebuild
+          path: ./data/functions.ps1
 
   db:
     image: mariadb:11.4.1-rc
     ports:
-      - 3369:3306
+      - 3370:3306
     restart: always
     environment:
       - "MYSQL_ROOT_PASSWORD=notSecureChangeMe"
@@ -29,7 +39,7 @@ services:
     image: phpmyadmin
     restart: always
     ports:
-      - 8078:80
+      - 8077:80
     environment:
       - "PMA_ARBITRARY=1"
       - "PMA_USER=root"

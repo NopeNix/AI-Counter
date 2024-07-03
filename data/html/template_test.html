@@ -35,6 +35,10 @@
                         <select id="aimodel" class="form-select" name="model" required>
                             ///OPTIONSAvailableAiModels
                         </select>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="rawoutput" value="1">
+                            <label class="form-check-label" for="flexSwitchCheckDefault">RAW Output</label>
+                        </div>
                     </div>
                     <p></p>
                     <button id="fetchButton" class="btn btn-primary">Analyze URL</button>
@@ -48,16 +52,17 @@
                     function fetchData() {
                         const url = document.getElementById('urlInput').value;
                         const minconfidence = document.getElementById('minconfidence').value;
+                        const rawoutput = document.getElementById('rawoutput').checked;
                         const aimodel = document.getElementById('aimodel').value;
                         const bodyData = {
                             "URL": url,
                             "minconfidence": minconfidence,
                             "model": aimodel,
-                            "astable": 1
+                            "rawoutput": rawoutput
                         };
 
                         document.getElementById('responseContainer').innerHTML = '<p><div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden"></span></div> AI is analyzing... (be patient this can take a couple of seconds or even minutes)...</p>';
-                        
+
                         fetch('/api/Analyze-URL', {
                             method: 'POST',
                             headers: {
@@ -70,11 +75,14 @@
                                 if (!response.ok) {
                                     throw new Error('Network response was not ok');
                                 }
-                                return response.json();
+                                return response.text();
                             })
-                            .then(htmlContent => {
-                                // Insert HTML content into the response container div
-                                document.getElementById('responseContainer').innerHTML = htmlContent;
+                            .then(text => {
+                                try {
+                                    document.getElementById('responseContainer').innerHTML = text;
+                                } catch (error) {
+                                    document.getElementById('responseContainer').innerHTML = text;
+                                }
                             })
                             .catch(error => {
                                 console.error('There was a problem with the fetch operation:', error);

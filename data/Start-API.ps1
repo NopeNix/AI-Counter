@@ -123,7 +123,7 @@ Start-PodeServer {
 
         }
         catch {
-            Write-PodeTextResponse ("Ërror: ",$_.Exception.Message)
+            Write-PodeTextResponse ("Ërror: ", $_.Exception.Message)
         }
     }
 
@@ -182,23 +182,31 @@ Start-PodeServer {
     # API : Analyze-URL
     New-PodeOAStringProperty -Name 'URL' -Description "URL to image which should be analyized by the AI, e.g. https://webcams.com/queue_entrance2.jpeg" -Required | ConvertTo-PodeOAParameter -In Query | Add-PodeOAComponentParameter -Name 'Set2' 
     Add-PodeRoute -Method Post -Path "/api/Analyze-URL" -ScriptBlock {
-        # Load Functions
-        . ($PSScriptRoot + "/functions.ps1")
+        try {
+            # Load Functions
+            . ($PSScriptRoot + "/functions.ps1")
 
-        if ($null -ne $webevent.data.URL -and $webevent.data.URL -ne "") {
-            $AIResult = Get-AIAnalysis -URL $webevent.data.URL -Model $webevent.data.model
-            if ($null -ne $webevent.data.minconfidence -or $webevent.data.minconfidence -ne "") {
-                $AIResult = $AIResult | Where-Object { $_.score -ge $webevent.data.minconfidence }
-            }
-            if ($webevent.data.astable -ne 1) {
-                Write-PodeJsonResponse (($AIResult | ConvertTo-Json))
+            if ($null -ne $webevent.data.URL -and $webevent.data.URL -ne "") {
+                $AIResult = Get-AIAnalysis -URL $webevent.data.URL -Model $webevent.data.model -RawOutput $webevent.data.rawoutput
+                if ($webevent.data.rawoutput -eq $false -and ($null -ne $webevent.data.minconfidence -or $webevent.data.minconfidence -ne "")) {
+                    $AIResult = $AIResult | Where-Object { $_.score -ge $webevent.data.minconfidence }
+                }
+
+                if ($webevent.data.rawoutput) {
+                    Write-PodeTextResponse ("<pre>$AIResult</pre>")
+                }
+                else {
+                    Write-PodeTextResponse (($AIResult | ConvertTo-Html -Fragment).Replace('<table>', "<table class='table'>") | Out-String)
+                }
             }
             else {
-                Write-PodeJsonResponse (($AIResult | ConvertTo-Html -Fragment).Replace('<table>', '<table class="table">'))
+                Write-PodeJsonResponse ((('{ "Error":  "Parameter URL is missing in Body" }') | ConvertTo-Json))
             }
         }
-        else {
-            Write-PodeJsonResponse ((('{ "Error":  "Parameter URL is missing in Body" }') | ConvertTo-Json))
+        catch {
+            Write-PodeJsonResponse @{
+                "Fatal Error" = $_.Exception.Message 
+        }
         }
     } -PassThru | Set-PodeOARouteInfo -Summary 'Analyze URL' -Tag "General" -PassThru | Set-PodeOARequest -Parameters @(ConvertTo-PodeOAParameter -Reference 'Set2' )
 
@@ -234,4 +242,4 @@ Start-PodeServer {
 
 
 
-} -Verbose -Debug
+} -Verbose -Debug -Threads 5
