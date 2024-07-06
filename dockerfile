@@ -1,13 +1,14 @@
 FROM tensorflow/tensorflow
 
 # install Requirements
+RUN apt update
+RUN apt install lshw libgl1-mesa-glx -y
+RUN pip install --upgrade pip
 RUN pip install tensorflow
 RUN pip install tensorflow_hub
 RUN pip install matplotlib
 RUN pip install kagglehub
 RUN pip install opencv-python
-RUN apt update
-RUN apt install lshw -y
 
 ## INSTALL POWERSHELL
 # Define Args for the needed to add the package

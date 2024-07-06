@@ -52,11 +52,18 @@ def detect_img(image_url, model_url, include_picture_with_boundingboxes, filter_
     print("Detection Results:")
     print(json.dumps(result, indent=2))
 
+    # Filter results based on confidence
+    if min_confidence > 0:
+        result['detections'] = [
+                det for det in result['detections']
+                if det['score'] >= min_confidence
+        ]
+
     # Filter results based on class and confidence
     if filter_classes:
         result['detections'] = [
             det for det in result['detections']
-            if det['class_label'] in filter_classes and det['score'] >= min_confidence
+            if det['class_label'] in filter_classes
         ]
 
     # If bounding box image inclusion is requested

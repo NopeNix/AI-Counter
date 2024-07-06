@@ -2,7 +2,7 @@ version: "3"
 services:
   ai-object-counter:
     build: .
-    restart: until-stopped
+    restart: unless-stopped
     ports:
       - 8079:8081
     environment:
