@@ -1,8 +1,8 @@
+import cv2
 from PIL import Image
 from io import BytesIO
 from urllib.request import urlopen
 import tensorflow as tf
-
 
 class ImageProcessor:
     @staticmethod
@@ -71,3 +71,55 @@ class ImageProcessor:
             img = tf.image.convert_image_dtype(img, tf.float32)
 
         return img
+    
+    @staticmethod
+    def draw_bounding_boxes(image_path, bounding_boxes, labels=None, normalized=True):
+        """
+        Draw bounding boxes on the image.
+        
+        Args:
+            image_path (str): Path to the input image.
+            bounding_boxes (list of tuples): List of bounding boxes.
+                Each tuple can be (x1, y1, x2, y2).
+            labels (list of str): List of labels for the bounding boxes.
+            normalized (bool): Whether the bounding boxes are normalized.
+
+        Returns:
+            Image.Image: The image with bounding boxes drawn on it.
+        """
+        # Load the image
+        image = cv2.imread(image_path)
+        if image is None:
+            raise ValueError(f"Unable to load image from path: {image_path}")
+        image_height, image_width = image.shape[:2]
+
+        # Convert bounding boxes if they are normalized
+        if normalized:
+            bounding_boxes_pixel = [
+                (int(x1 * image_width), int(y1 * image_height), int(x2 * image_width), int(y2 * image_height))
+                for (x1, y1, x2, y2) in bounding_boxes
+            ]
+        else:
+            bounding_boxes_pixel = bounding_boxes
+
+        # Draw bounding boxes and labels on the image
+        for i, bbox in enumerate(bounding_boxes_pixel):
+            if len(bbox) == 4:
+                x1, y1, x2, y2 = bbox
+            else:
+                raise ValueError("Bounding box format is incorrect. Must be (x1, y1, x2, y2)")
+
+            # Draw the bounding box
+            cv2.rectangle(image, (x1, y1), (x2, y2), (255, 0, 0), 2)
+
+            # Draw the label
+            if labels:
+                label = labels[i]
+                (text_width, text_height), baseline = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
+                cv2.rectangle(image, (x1, y1 - text_height - baseline), (x1 + text_width, y1), (255, 0, 0), cv2.FILLED)
+                cv2.putText(image, label, (x1, y1 - baseline), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
+
+        # Convert the image back to PIL format
+        image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        result_image = Image.fromarray(image_rgb)
+        return result_image

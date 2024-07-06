@@ -5,6 +5,7 @@ RUN pip install tensorflow
 RUN pip install tensorflow_hub
 RUN pip install matplotlib
 RUN pip install kagglehub
+RUN pip install opencv-python
 RUN apt update
 RUN apt install lshw -y
 
