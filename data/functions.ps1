@@ -7,6 +7,10 @@ function Get-AIAnalysis {
         [string]
         $URL,
 
+        [Parameter()]
+        [string]
+        $Filter,
+
         [Parameter(HelpMessage = "mobilenet is a precice one which takes longer. efficientdet is a quick small allrounder")]
         [ValidateSet('https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1', 
             'tensorflow/efficientdet/tensorFlow2/d0')]
@@ -31,15 +35,14 @@ function Get-AIAnalysis {
             $IncludePicSwitch = ""
         }
 
-        $stdout = python /data/main.py --url $URL --model $Model $IncludePicSwitch  # Real Analysis
+        $stdout = python /data/main.py --url $URL --filter $Filter --model $Model $IncludePicSwitch # Real Analysis
         #$stdout = $FAKETESTDATA # Fake Data for Dev
 
         # Use regex to find the JSON part
-        $jsonObject = [regex]::Match($stdout, '\{(?:[^{}]|(?<o>\{)|(?<-o>\}))+(?(o)(?!))\}').Value
+        $jsonObject = [regex]::Matches($stdout, '\{(?:[^{}]|(?<Open>\{)|(?<-Open>\}))*(?(Open)(?!))\}')[1].Value
 
         # Use regex to find base64 picture
         $base64Image = [regex]::Match($stdout, '"image-base64-encoded"\s*:\s*"\s*([^"]+)\s*"').Value
-
         
         # Output the captured output
         if ($RawOutput) {

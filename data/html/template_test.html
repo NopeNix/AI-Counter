@@ -28,6 +28,9 @@
                     </div>
                     <p></p>
                     <div class="form-group">
+                        <label for="filter">Filter:</label>
+                        <input type="text" class="form-control" id="filter" value="">
+                        <p></p>
                         <label for="minconfidence">Minimum Confidence:</label>
                         <input type="number" class="form-control" id="minconfidence" value="0.1">
                         <p></p>
@@ -58,11 +61,13 @@
                     function fetchData() {
                         const url = document.getElementById('urlInput').value;
                         const minconfidence = document.getElementById('minconfidence').value;
+                        const filter = document.getElementById('filter').value;
                         const rawoutput = document.getElementById('rawoutput').checked;
                         const includepic = document.getElementById('includepic').checked;
                         const aimodel = document.getElementById('aimodel').value;
                         const bodyData = {
                             "URL": url,
+                            "filter": filter,
                             "minconfidence": minconfidence,
                             "model": aimodel,
                             "rawoutput": rawoutput,

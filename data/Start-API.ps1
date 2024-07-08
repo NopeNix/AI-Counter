@@ -187,7 +187,7 @@ Start-PodeServer {
             . ($PSScriptRoot + "/functions.ps1")
 
             if ($null -ne $webevent.data.URL -and $webevent.data.URL -ne "") {
-                $AIResult = Get-AIAnalysis -URL $webevent.data.URL -Model $webevent.data.model -RawOutput $webevent.data.rawoutput -IncludePic $webevent.data.includepic
+                $AIResult = Get-AIAnalysis -URL $webevent.data.URL -Model $webevent.data.model -RawOutput $webevent.data.rawoutput -IncludePic $webevent.data.includepic -Filter $webevent.data.filter
                 if ($webevent.data.rawoutput -eq $false -and ($null -ne $webevent.data.minconfidence -or $webevent.data.minconfidence -ne "")) {
                     #$AIResult.json = $AIResult.json | ConvertFrom-Json | Where-Object { $_.score -ge $webevent.data.minconfidence } | ConvertTo-Json
                 }
