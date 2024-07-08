@@ -187,16 +187,44 @@ Start-PodeServer {
             . ($PSScriptRoot + "/functions.ps1")
 
             if ($null -ne $webevent.data.URL -and $webevent.data.URL -ne "") {
-                $AIResult = Get-AIAnalysis -URL $webevent.data.URL -Model $webevent.data.model -RawOutput $webevent.data.rawoutput
+                $AIResult = Get-AIAnalysis -URL $webevent.data.URL -Model $webevent.data.model -RawOutput $webevent.data.rawoutput -IncludePic $webevent.data.includepic
                 if ($webevent.data.rawoutput -eq $false -and ($null -ne $webevent.data.minconfidence -or $webevent.data.minconfidence -ne "")) {
-                    $AIResult = $AIResult | Where-Object { $_.score -ge $webevent.data.minconfidence }
+                    #$AIResult.json = $AIResult.json | ConvertFrom-Json | Where-Object { $_.score -ge $webevent.data.minconfidence } | ConvertTo-Json
                 }
 
                 if ($webevent.data.rawoutput) {
-                    Write-PodeTextResponse ("<pre>$AIResult</pre>")
+                    Write-PodeTextResponse ("<pre>" + $AIResult + "</pre>")
                 }
                 else {
-                    Write-PodeTextResponse (($AIResult | ConvertTo-Html -Fragment).Replace('<table>', "<table class='table'>") | Out-String)
+                    $Response = (($AIResult.json | convertfrom-json).detections | Select-Object class_label, score | ConvertTo-Html -Fragment).Replace('<table>', "<table class='table'>") | Out-String
+                    if ($webevent.data.includepic) {
+                        $PicData = ('<div class="col-8">
+                                       <img data-bs-toggle="modal" data-bs-target="#PicturePreviewModel" class="img-fluid" src="data:image/jpeg;base64,' + (("{" + $AIResult.image + "}" | ConvertFrom-Json)."image-base64-encoded" | Out-String) + '" alt="Base64 Image" />
+                                        </div>
+                                        
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="PicturePreviewModel" tabindex="-1" aria-labelledby="PicturePreviewModelLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-xl">
+                                            <div class="modal-content">
+                                            <div class="modal-body">
+                                                <img data-bs-toggle="modal" data-bs-target="#PicturePreviewModel" class="img-fluid" src="data:image/jpeg;base64,' + (("{" + $AIResult.image + "}" | ConvertFrom-Json)."image-base64-encoded" | Out-String) + '" alt="Base64 Image" />
+                                            </div>
+                                            </div>
+                                        </div>
+                                        </div>
+                                        
+                                        ')
+                    }
+                    $Response = ('<div class="container text-center">
+                                    <div class="row">
+                                        ' + $PicData + '
+                                        <div class="col">
+                                            ' + $Response + '
+                                        </div>
+                                    </div>
+                                    </div>')
+                    
+                    Write-PodeTextResponse ($Response)
                 }
             }
             else {
@@ -206,7 +234,7 @@ Start-PodeServer {
         catch {
             Write-PodeJsonResponse @{
                 "Fatal Error" = $_.Exception.Message 
-        }
+            }
         }
     } -PassThru | Set-PodeOARouteInfo -Summary 'Analyze URL' -Tag "General" -PassThru | Set-PodeOARequest -Parameters @(ConvertTo-PodeOAParameter -Reference 'Set2' )
 
