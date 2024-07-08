@@ -74,7 +74,7 @@
                             "includepic" : includepic
                         };
 
-                        document.getElementById('responseContainer').innerHTML = '<p><div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden"></span></div> AI is analyzing... (be patient this can take a couple of seconds or even minutes)...</p>';
+                        document.getElementById('responseContainer').innerHTML = '<p><div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden"></span></div> AI is analyzing... (be patient <i class="bi bi-cup-hot"></i> this can take a couple of seconds or even minutes if you do it with slow Hardware)...</p>';
 
                         fetch('/api/Analyze-URL', {
                             method: 'POST',

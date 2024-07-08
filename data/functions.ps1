@@ -7,6 +7,10 @@ function Get-AIAnalysis {
         [string]
         $URL,
 
+        [Parameter(Mandatory = $true)]
+        [float]
+        $MinConfidence,
+
         [Parameter()]
         [string]
         $Filter,
@@ -35,11 +39,19 @@ function Get-AIAnalysis {
             $IncludePicSwitch = ""
         }
 
-        $stdout = python /data/main.py --url $URL --filter $Filter --model $Model $IncludePicSwitch # Real Analysis
-        #$stdout = $FAKETESTDATA # Fake Data for Dev
+        if ($null -eq $Filter -or "" -eq $Filter) {
+            $FilterSwitch = '""'
+        } else {
+            $FilterSwitch = $Filter
+        }
+
+
+        #$stdout = & python3 $PSScriptRoot/main.py --url $URL --filter "$FilterSwitch" --model $Model --min-confidence $MinConfidence $IncludePicSwitch # Real Analysis
+        $stdout = $FAKETESTDATA # Fake Data for Dev
 
         # Use regex to find the JSON part
         $jsonObject = [regex]::Matches($stdout, '\{(?:[^{}]|(?<Open>\{)|(?<-Open>\}))*(?(Open)(?!))\}')[1].Value
+        if ($null -eq $jsonObject -or $jsonObject -eq "") { $jsonObject = "{}"}
 
         # Use regex to find base64 picture
         $base64Image = [regex]::Match($stdout, '"image-base64-encoded"\s*:\s*"\s*([^"]+)\s*"').Value
