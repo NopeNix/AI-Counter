@@ -190,11 +190,11 @@ Start-PodeServer {
                 $AIResult = Get-AIAnalysis -URL $webevent.data.URL -Model $webevent.data.model -RawOutput $webevent.data.rawoutput -IncludePic $webevent.data.includepic -Filter $webevent.data.filter -MinConfidence $webevent.data.minconfidence
 
                 if ($webevent.data.rawoutput) {
-                    Write-PodeTextResponse ("<pre>" + $AIResult + "</pre>")
+                    Write-PodeTextResponse ("<pre>" + ($AIResult | ConvertTo-Json )+ "</pre>")
                 }
                 else {
-                    if (($AIResult.json | convertfrom-json).detections.count -gt 0) {
-                        $Response = (($AIResult.json | convertfrom-json).detections | Select-Object class_label, score | ConvertTo-Html -Fragment).Replace('<table>', "<table class='table'>") | Out-String
+                    if ($AIResult.objects.count -gt 0) {
+                        $Response = ($AIResult.objects | Select-Object Label, Score | ConvertTo-Html -Fragment).Replace('<table>', "<table class='table'>")
                     }
                     else {
                         $Response = "<b>No matches with provided Filter<b>"
@@ -202,7 +202,7 @@ Start-PodeServer {
 
                     if ($webevent.data.includepic) {
                         $PicData = ('<div class="col-8">
-                                       <img data-bs-toggle="modal" data-bs-target="#PicturePreviewModel" class="img-fluid" src="data:image/jpeg;base64,' + (("{" + $AIResult.image + "}" | ConvertFrom-Json)."image-base64-encoded" | Out-String) + '" alt="Base64 Image" />
+                                       <img data-bs-toggle="modal" data-bs-target="#PicturePreviewModel" class="img-fluid" src="data:image/jpeg;base64,' + ($AIResult."image-base64-encoded" | Out-String) + '" alt="Base64 Image" />
                                         </div>
                                         
                                         <!-- Modal -->
@@ -210,7 +210,7 @@ Start-PodeServer {
                                         <div class="modal-dialog modal-xl">
                                             <div class="modal-content">
                                             <div class="modal-body">
-                                                <img data-bs-toggle="modal" data-bs-target="#PicturePreviewModel" class="img-fluid" src="data:image/jpeg;base64,' + (("{" + $AIResult.image + "}" | ConvertFrom-Json)."image-base64-encoded" | Out-String) + '" alt="Base64 Image" />
+                                                <img data-bs-toggle="modal" data-bs-target="#PicturePreviewModel" class="img-fluid" src="data:image/jpeg;base64,' + ($AIResult."image-base64-encoded") + '" alt="Base64 Image" />
                                             </div>
                                             </div>
                                         </div>

@@ -17,9 +17,9 @@ function Get-AIAnalysis {
 
         [Parameter(HelpMessage = "mobilenet is a precice one which takes longer. efficientdet is a quick small allrounder")]
         [ValidateSet('https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1', 
-            'tensorflow/efficientdet/tensorFlow2/d0')]
+            'yolov3','fasterrcnn')]
         [string]
-        $Model = 'tensorflow/efficientdet/tensorFlow2/d0',
+        $Model = 'https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1',
 
         [Parameter()]
         [bool]
@@ -40,49 +40,37 @@ function Get-AIAnalysis {
         }
 
         if ($null -eq $Filter -or "" -eq $Filter) {
-            $FilterSwitch = '""'
-        } else {
-            $FilterSwitch = $Filter
-        }
-
-
-        $stdout = & python3 $PSScriptRoot/main.py --url $URL --filter "$FilterSwitch" --model $Model --min-confidence $MinConfidence $IncludePicSwitch # Real Analysis
-        #$stdout = $FAKETESTDATA # Fake Data for Dev
-
-        # Use regex to find the JSON part
-        $jsonObject = [regex]::Matches($stdout, '\{(?:[^{}]|(?<Open>\{)|(?<-Open>\}))*(?(Open)(?!))\}')[1].Value
-        if ($null -eq $jsonObject -or $jsonObject -eq "") { $jsonObject = "{}"}
-
-        # Use regex to find base64 picture
-        $base64Image = [regex]::Match($stdout, '"image-base64-encoded"\s*:\s*"\s*([^"]+)\s*"').Value
-        
-        # Output the captured output
-        if ($RawOutput) {
-            # Raw Return
-            Return ($stdout | Out-String) 
+            $FilterSwitch = ''
         }
         else {
-            if ((($jsonObject | convertfrom-json).detections.count) -ne 0) {
-                # Normal Return
-                $Return = [PSCustomObject]@{
-                    json  = $jsonObject
-                    image = $base64Image 
-                }
-                Return $Return
-            }
-            else {
-                # Error no objects on pic Returns
-                $Return = [PSCustomObject]@{
-                    json  = '{ "Error":  "No Objects found on picture" }'
-                    image = $base64Image 
-                }
-                Return $Return
-            }
+            $FilterSwitch = "--filter " + $Filter
         }
+
+        switch ($Model) {
+            'https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1' { 
+                $stdout = Invoke-Expression -Command ("python3 $PSScriptRoot/models/ssd_mobilenet_v2_fpnlite_320x320/main.py --image-path $URL $FilterSwitch --min-confidence $MinConfidence $IncludePicSwitch") # Real Analysis
+            }
+            'yolov3' {
+                $stdout = Invoke-Expression -Command ("python3 $PSScriptRoot/models/yolov3/main.py --image-path $URL $FilterSwitch --min-confidence $MinConfidence $IncludePicSwitch") # Real Analysis
+            }
+            'fasterrcnn' {
+                $stdout = Invoke-Expression -Command ("python3 $PSScriptRoot/models/fasterrcnn/main.py --image-path $URL $FilterSwitch --min-confidence $MinConfidence $IncludePicSwitch") # Real Analysis
+            }
+            Default {}
+        }
+        $stdout = $stdout | ConvertFrom-Json
+        
+        #$stdout = $FAKETESTDATA # Fake Data for Dev
+        
+        # Output the captured output
+        Return $stdout
     }
     catch {
         # Error Return
-        Return ('{ "Error":  "' + $_.Exception.Message + '" }')  
+        $Return = [PSCustomObject]@{
+            Error = "' + $_.Exception.Message + '"
+        }
+        Return $Return
     }
 } 
 
@@ -145,7 +133,8 @@ function Get-AvailableAiModels {
 
     if ($OutputAsHTMLOptions) {
         Return ('<option>https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1</option>
-        <option>tensorflow/efficientdet/tensorFlow2/d0</option>')
+        <option>yolov3</option>
+        <option>fasterrcnn</option>')
     }
     elseif ($OutputAsHTMLCards) {
         Return ('<div class="card-group">
