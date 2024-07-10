@@ -46,8 +46,8 @@ function Get-AIAnalysis {
         }
 
 
-        #$stdout = & python3 $PSScriptRoot/main.py --url $URL --filter "$FilterSwitch" --model $Model --min-confidence $MinConfidence $IncludePicSwitch # Real Analysis
-        $stdout = $FAKETESTDATA # Fake Data for Dev
+        $stdout = & python3 $PSScriptRoot/main.py --url $URL --filter "$FilterSwitch" --model $Model --min-confidence $MinConfidence $IncludePicSwitch # Real Analysis
+        #$stdout = $FAKETESTDATA # Fake Data for Dev
 
         # Use regex to find the JSON part
         $jsonObject = [regex]::Matches($stdout, '\{(?:[^{}]|(?<Open>\{)|(?<-Open>\}))*(?(Open)(?!))\}')[1].Value
@@ -71,8 +71,12 @@ function Get-AIAnalysis {
                 Return $Return
             }
             else {
-                # Error no objects on pic Return
-                Return ('{ "Error":  "No Objects found on picture, script output: ' + $stdout + '" }')  
+                # Error no objects on pic Returns
+                $Return = [PSCustomObject]@{
+                    json  = '{ "Error":  "No Objects found on picture" }'
+                    image = $base64Image 
+                }
+                Return $Return
             }
         }
     }

@@ -193,10 +193,15 @@ Start-PodeServer {
                     Write-PodeTextResponse ("<pre>" + $AIResult + "</pre>")
                 }
                 else {
-                    $Response = (($AIResult.json | convertfrom-json).detections | Select-Object class_label, score | ConvertTo-Html -Fragment).Replace('<table>', "<table class='table'>") | Out-String
+                    if (($AIResult.json | convertfrom-json).detections.count -gt 0) {
+                        $Response = (($AIResult.json | convertfrom-json).detections | Select-Object class_label, score | ConvertTo-Html -Fragment).Replace('<table>', "<table class='table'>") | Out-String
+                    }
+                    else {
+                        $Response = "<b>No matches with provided Filter<b>"
+                    }
+
                     if ($webevent.data.includepic) {
                         $PicData = ('<div class="col-8">
-                                    ' + ($AIResult | Out-String) + ' 
                                        <img data-bs-toggle="modal" data-bs-target="#PicturePreviewModel" class="img-fluid" src="data:image/jpeg;base64,' + (("{" + $AIResult.image + "}" | ConvertFrom-Json)."image-base64-encoded" | Out-String) + '" alt="Base64 Image" />
                                         </div>
                                         
@@ -232,6 +237,12 @@ Start-PodeServer {
         catch {
             Write-PodeJsonResponse @{
                 "Fatal Error" = $_.Exception.Message 
+                "Error Details" = $_.PSMessageDetails
+                "MyCommand.Name" = $_.InvocationInfo.MyCommand.Name
+                "ErrorDetails.Message" = $_.ErrorDetails.Message
+                "InvocationInfo.PositionMessage" = $_.InvocationInfo.PositionMessage
+                "CategoryInfo" = $_.CategoryInfo.ToString()
+                "FullyQualifiedErrorId" = $_.FullyQualifiedErrorId
             }
         }
     } -PassThru | Set-PodeOARouteInfo -Summary 'Analyze URL' -Tag "General" -PassThru | Set-PodeOARequest -Parameters @(ConvertTo-PodeOAParameter -Reference 'Set2' )
