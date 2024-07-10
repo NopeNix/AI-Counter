@@ -31,7 +31,8 @@ COCO_LABELS = {
 
 MODEL_URL = 'http://download.tensorflow.org/models/object_detection/tf2/20200711/faster_rcnn_resnet50_v1_640x640_coco17_tpu-8.tar.gz'
 MODEL_DIR = 'faster_rcnn_resnet50_v1_640x640'
-MODEL_PATH = os.path.join(MODEL_DIR, 'saved_model')
+EXTRACTED_DIR_NAME = 'faster_rcnn_resnet50_v1_640x640_coco17_tpu-8'
+MODEL_PATH = os.path.join(MODEL_DIR, EXTRACTED_DIR_NAME, 'saved_model')
 
 def download_and_extract_model():
     if not os.path.exists(MODEL_DIR):

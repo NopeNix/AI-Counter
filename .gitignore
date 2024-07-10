@@ -14,3 +14,4 @@ __pycache__/
 data/models/ssd_mobilenet_v2_fpnlite_320x320/tensorflowtry/ssd_mobilenet_v2_fpnlite_320x320
 data/models/ssd_mobilenet_v2_fpnlite_320x320/test.txt
 data/models/ssd_mobilenet_v2_fpnlite_320x320/ssd_mobilenet_v2_fpnlite_320x320_coco17_tpu-8
+data/models/fasterrcnn/test.txt
