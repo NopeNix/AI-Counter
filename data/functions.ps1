@@ -17,7 +17,7 @@ function Get-AIAnalysis {
 
         [Parameter(HelpMessage = "mobilenet is a precice one which takes longer. efficientdet is a quick small allrounder")]
         [ValidateSet('https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1', 
-            'yolov3','fasterrcnn')]
+            'yolov3','yolov4','yolov5','fasterrcnn')]
         [string]
         $Model = 'https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1',
 
@@ -52,6 +52,12 @@ function Get-AIAnalysis {
             }
             'yolov3' {
                 $stdout = Invoke-Expression -Command ("python3 $PSScriptRoot/models/yolov3/main.py --image-path $URL $FilterSwitch --min-confidence $MinConfidence $IncludePicSwitch") # Real Analysis
+            }
+            'yolov4' {
+                $stdout = Invoke-Expression -Command ("python3 $PSScriptRoot/models/yolov4/main.py --image-path $URL $FilterSwitch --min-confidence $MinConfidence $IncludePicSwitch") # Real Analysis
+            }
+            'yolov5' {
+                $stdout = Invoke-Expression -Command ("python3 $PSScriptRoot/models/yolov5/main.py --image-path $URL $FilterSwitch --min-confidence $MinConfidence $IncludePicSwitch") # Real Analysis
             }
             'fasterrcnn' {
                 $stdout = Invoke-Expression -Command ("python3 $PSScriptRoot/models/fasterrcnn/main.py --image-path $URL $FilterSwitch --min-confidence $MinConfidence $IncludePicSwitch") # Real Analysis
@@ -93,7 +99,7 @@ function Get-NavMenuHTML {
     $HTML = ('
         <nav class="navbar navbar-expand-sm bg-body-tertiary rounded">
             <div class="container-xxl">
-                <a class="navbar-brand" href="#">AI-Object Counter</a>
+                <a class="navbar-brand" href="#">AI Counter</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar"
                     aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -134,6 +140,8 @@ function Get-AvailableAiModels {
     if ($OutputAsHTMLOptions) {
         Return ('<option>https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1</option>
         <option>yolov3</option>
+        <option>yolov4</option>
+        <option>yolov5</option>
         <option>fasterrcnn</option>')
     }
     elseif ($OutputAsHTMLCards) {

@@ -1,4 +1,4 @@
-# AI-Object-Counter
+# ai-counter
 - Counts specified Objects on a Image and writes the Count to a MariaDB Database. 
 - Choose between different Models:
   - [Mobilenet_v2 (by Google)](https://www.kaggle.com/models/google/mobilenet-v2/tensorFlow1/openimages-v4-ssd-mobilenet-v2/1?tfhub-redirect=true) 
@@ -25,7 +25,7 @@
 
 ### 1. Clone this Repository:
 ```bash
-git clone https://github.com/NopeNix/AI-Object-Counter.git
+git clone https://github.com/NopeNix/ai-counter.git
 ```
 ### 2. Run docker-compose
 (The ```docker-compose.yml``` also works with Portainer)

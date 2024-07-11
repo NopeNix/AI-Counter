@@ -1,6 +1,6 @@
 version: "3"
 services:
-  ai-object-counter:
+  ai-counter:
     build: .
     restart: unless-stopped
     ports:
