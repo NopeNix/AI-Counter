@@ -1,4 +1,4 @@
-# ai-counter
+# AI-Counter
 - Counts specified Objects on a Image and writes the Count to a MariaDB Database. 
 - Choose between different Models:
   - [Mobilenet_v2 (by Google)](https://www.kaggle.com/models/google/mobilenet-v2/tensorFlow1/openimages-v4-ssd-mobilenet-v2/1?tfhub-redirect=true) 
