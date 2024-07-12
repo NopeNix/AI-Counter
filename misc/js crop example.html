@@ -6,10 +6,23 @@
     #container {
       border: 1px solid black;
     }
+    .coordinates {
+      margin-top: 10px;
+    }
+    .coordinates input {
+      margin: 5px;
+      width: 80px;
+    }
   </style>
 </head>
 <body>
   <div id="container"></div>
+  <div class="coordinates">
+    <label>X: <input type="number" id="x-coord"></label>
+    <label>Y: <input type="number" id="y-coord"></label>
+    <label>Width: <input type="number" id="width"></label>
+    <label>Height: <input type="number" id="height"></label>
+  </div>
   <script>
     var width = 800;
     var height = 600;
@@ -24,7 +37,7 @@
     stage.add(layer);
 
     var imageObj = new Image();
-    imageObj.src = 'https://webcam.wpzw.de/webcam.jpg';  // Replace with your image URL
+    imageObj.src = 'https://via.placeholder.com/800x600';  // Replace with your image URL
     imageObj.onload = function() {
       var yoda = new Konva.Image({
         x: 0,
@@ -46,22 +59,32 @@
       width: 0,
       height: 0,
       stroke: 'red',
-      strokeWidth: 5,
-      draggable: true,
+      strokeWidth: 0,
+      draggable: true
     });
 
     var tr = new Konva.Transformer({
       nodes: [rect],
       enabledAnchors: ['top-left', 'top-right', 'bottom-left', 'bottom-right', 'top-center', 'bottom-center', 'middle-left', 'middle-right'],
       rotateEnabled: false,
+      keepRatio: false, // Allow free resizing
       boundBoxFunc: function (oldBox, newBox) {
         // Set minimum width and height
         if (newBox.width < 20 || newBox.height < 20) {
           return oldBox;
         }
-        // Restrict movement within the canvas bounds
-        if (newBox.x < 0 || newBox.y < 0 || newBox.x + newBox.width > width || newBox.y + newBox.height > height) {
-          return oldBox;
+        // Ensure the rectangle stays within the canvas
+        if (newBox.x < 0) {
+          newBox.x = 0;
+        }
+        if (newBox.y < 0) {
+          newBox.y = 0;
+        }
+        if (newBox.x + newBox.width > width) {
+          newBox.width = width - newBox.x;
+        }
+        if (newBox.y + newBox.height > height) {
+          newBox.height = height - newBox.y;
         }
         return newBox;
       },
@@ -94,6 +117,7 @@
 
       stage.on('mouseup', function(evt) {
         isDrawing = false;
+        updateCoordinates();
         console.log('Rectangle coordinates: ', rect.x(), rect.y(), rect.width(), rect.height());
         // You can now use these coordinates for further processing
       });
@@ -105,7 +129,7 @@
         }
       });
 
-      // Constrain dragging within the canvas
+      // Constrain dragging within the canvas bounds
       rect.on('dragmove', function() {
         var box = rect.getClientRect();
         if (box.x < 0) {
@@ -119,6 +143,61 @@
         }
         if (box.y + box.height > height) {
           rect.y(height - box.height);
+        }
+        updateCoordinates();
+      });
+
+      // Update coordinates when resizing
+      rect.on('transform', function() {
+        updateCoordinates();
+        layer.draw(); // Force re-draw to update the rectangle
+      });
+
+      function updateCoordinates() {
+        document.getElementById('x-coord').value = Math.round(rect.x());
+        document.getElementById('y-coord').value = Math.round(rect.y());
+        document.getElementById('width').value = Math.round(rect.width() * rect.scaleX());
+        document.getElementById('height').value = Math.round(rect.height() * rect.scaleY());
+      }
+
+      // Add event listeners to the input fields
+      document.getElementById('x-coord').addEventListener('change', function() {
+        var x = parseInt(this.value, 10);
+        if (!isNaN(x) && x >= 0 && x + rect.width() <= width) {
+          rect.x(x);
+          layer.draw();
+        } else {
+          this.value = Math.round(rect.x());
+        }
+      });
+
+      document.getElementById('y-coord').addEventListener('change', function() {
+        var y = parseInt(this.value, 10);
+        if (!isNaN(y) && y >= 0 && y + rect.height() <= height) {
+          rect.y(y);
+          layer.draw();
+        } else {
+          this.value = Math.round(rect.y());
+        }
+      });
+
+      document.getElementById('width').addEventListener('change', function() {
+        var w = parseInt(this.value, 10);
+        if (!isNaN(w) && w >= 20 && rect.x() + w <= width) {
+          rect.width(w / rect.scaleX());
+          layer.draw();
+        } else {
+          this.value = Math.round(rect.width() * rect.scaleX());
+        }
+      });
+
+      document.getElementById('height').addEventListener('change', function() {
+        var h = parseInt(this.value, 10);
+        if (!isNaN(h) && h >= 20 && rect.y() + h <= height) {
+          rect.height(h / rect.scaleY());
+          layer.draw();
+        } else {
+          this.value = Math.round(rect.height() * rect.scaleY());
         }
       });
     }

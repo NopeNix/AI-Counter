@@ -10,6 +10,7 @@
     <link href="https://getbootstrap.com/docs/5.3/assets/css/docs.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/konva/7.2.5/konva.min.js"></script>
 </head>
 
 <body>
@@ -132,7 +133,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                    
+
 
                                 <!-- Crop Data-->
                                 <input type="hidden" name="x" id="cropX">
@@ -155,7 +156,7 @@
                 <!-- Modal: Test & Crop -->
                 <div class="modal fade" id="testandcrop" aria-hidden="true" aria-labelledby="test-aiLabel"
                     data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h1 class="modal-title fs-5" id="add-scheduled-countLabel">Crop Image</h1>
@@ -163,17 +164,225 @@
                                     aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <div class="img-container">
-                                    <img id="imagetocrop" src="//TESTANDCROPPICPATH" alt="Picture" class="img-fluid">
+                                <div class="row">
+                                    <div class="col col-xxl">
+                                        <div id="containercrop"></div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="row g-3">
+                                        <div class="col-sm input-group input-group-sm mb-3">
+                                            <span class="input-group-text" id="basic-addon1">X</span>
+                                            <input id="x-coord" type="number" class="form-control"
+                                                aria-describedby="basic-addon1">
+                                        </div>
+                                        <div class="col-sm input-group input-group-sm mb-3">
+                                            <span class="input-group-text" id="basic-addon2">Y</span>
+                                            <input id="y-coord" type="number" class="form-control"
+                                                aria-describedby="basic-addon2">
+                                        </div>
+                                    </div>
+                                    <div class="row g-3">
+                                    <div class="col-sm input-group input-group-sm mb-3">
+                                        <span class="input-group-text" id="basic-addon3">Width</span>
+                                        <input id="width" type="number" class="form-control"
+                                            aria-describedby="basic-addon3">
+                                    </div>
+                                    <div class="col-sm input-group input-group-sm mb-3">
+                                        <span class="input-group-text" id="basic-addon4">Height</span>
+                                        <input id="height" type="number" class="form-control"
+                                            aria-describedby="basic-addon4">
+                                    </div>
                                 </div>
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-label="Close">Close</button>
-                                <button type="submit" class="btn btn-primary" id="cropButton">Crop & Submit</button>
-                            </div>
                         </div>
+                        <script>
+                            var width = 800;
+                            var height = 600;
+
+                            var stage = new Konva.Stage({
+                                container: 'containercrop',
+                                width: width,
+                                height: height,
+                            });
+
+                            var layer = new Konva.Layer();
+                            stage.add(layer);
+
+                            var imageObj = new Image();
+                            imageObj.src = 'https://webcam.wpzw.de/webcam.jpg';  // Replace with your image URL
+                            imageObj.onload = function () {
+                                var yoda = new Konva.Image({
+                                    x: 0,
+                                    y: 0,
+                                    image: imageObj,
+                                    width: width,
+                                    height: height,
+                                });
+                                layer.add(yoda);
+                                layer.draw();
+
+                                // Initialize drawing functionality after the image is loaded
+                                initializeDrawing();
+                            };
+
+                            var rect = new Konva.Rect({
+                                x: 0,
+                                y: 0,
+                                width: 0,
+                                height: 0,
+                                stroke: 'red',
+                                strokeWidth: 0,
+                                draggable: true
+                            });
+
+                            var tr = new Konva.Transformer({
+                                nodes: [rect],
+                                enabledAnchors: ['top-left', 'top-right', 'bottom-left', 'bottom-right', 'top-center', 'bottom-center', 'middle-left', 'middle-right'],
+                                rotateEnabled: false,
+                                keepRatio: false, // Allow free resizing
+                                boundBoxFunc: function (oldBox, newBox) {
+                                    // Set minimum width and height
+                                    if (newBox.width < 20 || newBox.height < 20) {
+                                        return oldBox;
+                                    }
+                                    // Ensure the rectangle stays within the canvas
+                                    if (newBox.x < 0) {
+                                        newBox.x = 0;
+                                    }
+                                    if (newBox.y < 0) {
+                                        newBox.y = 0;
+                                    }
+                                    if (newBox.x + newBox.width > width) {
+                                        newBox.width = width - newBox.x;
+                                    }
+                                    if (newBox.y + newBox.height > height) {
+                                        newBox.height = height - newBox.y;
+                                    }
+                                    return newBox;
+                                },
+                            });
+
+                            function initializeDrawing() {
+                                layer.add(rect);
+                                layer.add(tr);
+
+                                var isDrawing = false;
+                                stage.on('mousedown', function (evt) {
+                                    if (rect.width() === 0 && rect.height() === 0) {
+                                        isDrawing = true;
+                                        var pos = stage.getPointerPosition();
+                                        rect.x(pos.x);
+                                        rect.y(pos.y);
+                                        rect.width(0);
+                                        rect.height(0);
+                                        layer.draw();
+                                    }
+                                });
+
+                                stage.on('mousemove', function (evt) {
+                                    if (!isDrawing) return;
+                                    var pos = stage.getPointerPosition();
+                                    rect.width(Math.max(pos.x - rect.x(), 20));
+                                    rect.height(Math.max(pos.y - rect.y(), 20));
+                                    layer.draw();
+                                });
+
+                                stage.on('mouseup', function (evt) {
+                                    isDrawing = false;
+                                    updateCoordinates();
+                                    console.log('Rectangle coordinates: ', rect.x(), rect.y(), rect.width(), rect.height());
+                                    // You can now use these coordinates for further processing
+                                });
+
+                                // Disable further drawing once the rectangle is drawn
+                                stage.on('click', function (evt) {
+                                    if (!isDrawing && rect.width() > 0 && rect.height() > 0) {
+                                        isDrawing = false;
+                                    }
+                                });
+
+                                // Constrain dragging within the canvas bounds
+                                rect.on('dragmove', function () {
+                                    var box = rect.getClientRect();
+                                    if (box.x < 0) {
+                                        rect.x(0);
+                                    }
+                                    if (box.y < 0) {
+                                        rect.y(0);
+                                    }
+                                    if (box.x + box.width > width) {
+                                        rect.x(width - box.width);
+                                    }
+                                    if (box.y + box.height > height) {
+                                        rect.y(height - box.height);
+                                    }
+                                    updateCoordinates();
+                                });
+
+                                // Update coordinates when resizing
+                                rect.on('transform', function () {
+                                    updateCoordinates();
+                                    layer.draw(); // Force re-draw to update the rectangle
+                                });
+
+                                function updateCoordinates() {
+                                    document.getElementById('x-coord').value = Math.round(rect.x());
+                                    document.getElementById('y-coord').value = Math.round(rect.y());
+                                    document.getElementById('width').value = Math.round(rect.width() * rect.scaleX());
+                                    document.getElementById('height').value = Math.round(rect.height() * rect.scaleY());
+                                }
+
+                                // Add event listeners to the input fields
+                                document.getElementById('x-coord').addEventListener('change', function () {
+                                    var x = parseInt(this.value, 10);
+                                    if (!isNaN(x) && x >= 0 && x + rect.width() <= width) {
+                                        rect.x(x);
+                                        layer.draw();
+                                    } else {
+                                        this.value = Math.round(rect.x());
+                                    }
+                                });
+
+                                document.getElementById('y-coord').addEventListener('change', function () {
+                                    var y = parseInt(this.value, 10);
+                                    if (!isNaN(y) && y >= 0 && y + rect.height() <= height) {
+                                        rect.y(y);
+                                        layer.draw();
+                                    } else {
+                                        this.value = Math.round(rect.y());
+                                    }
+                                });
+
+                                document.getElementById('width').addEventListener('change', function () {
+                                    var w = parseInt(this.value, 10);
+                                    if (!isNaN(w) && w >= 20 && rect.x() + w <= width) {
+                                        rect.width(w / rect.scaleX());
+                                        layer.draw();
+                                    } else {
+                                        this.value = Math.round(rect.width() * rect.scaleX());
+                                    }
+                                });
+
+                                document.getElementById('height').addEventListener('change', function () {
+                                    var h = parseInt(this.value, 10);
+                                    if (!isNaN(h) && h >= 20 && rect.y() + h <= height) {
+                                        rect.height(h / rect.scaleY());
+                                        layer.draw();
+                                    } else {
+                                        this.value = Math.round(rect.height() * rect.scaleY());
+                                    }
+                                });
+                            }
+                        </script>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                            aria-label="Close">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="cropButton">Crop & Submit</button>
                     </div>
                 </div>
+            </div>
+        </div>
 
 
     </main>
@@ -185,34 +394,10 @@
     <!-- Click Test & Crop Button -->
     <script lang="javascript">
         document.getElementById("button-addon2").addEventListener("click", function () {
-            document.getElementById("imagetocrop").src = document.getElementById("imagetocroppath").value;
+            //imageObj.src = document.getElementById("imagetocroppath").value;
         });
     </script>
 
-    <!-- Cropper.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
-    <script>
-        var cropper;
-
-        $('#testandcrop').on('shown.bs.modal', function () {
-            var image = document.getElementById('imagetocrop');
-            cropper = new Cropper(image, {
-                aspectRatio: 16 / 9,
-                viewMode: 2
-            });
-        }).on('hidden.bs.modal', function () {
-            cropper.destroy();
-            cropper = null;
-        });
-
-        document.getElementById('cropButton').addEventListener('click', function () {
-            var cropData = cropper.getData();
-            document.getElementById('cropX').value = cropData.x;
-            document.getElementById('cropY').value = cropData.y;
-            document.getElementById('cropWidth').value = cropData.width;
-            document.getElementById('cropHeight').value = cropData.height;
-        });
-    </script>
 </body>
 
 </html>
