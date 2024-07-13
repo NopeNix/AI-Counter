@@ -17,7 +17,7 @@ function Get-AIAnalysis {
 
         [Parameter(HelpMessage = "mobilenet is a precice one which takes longer. efficientdet is a quick small allrounder")]
         [ValidateSet('https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1', 
-            'yolov3','yolov4','yolov5','fasterrcnn')]
+            'yolov3', 'yolov4', 'yolov5', 'fasterrcnn')]
         [string]
         $Model = 'https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1',
 
@@ -138,66 +138,69 @@ function Get-AvailableAiModels {
     )
 
     if ($OutputAsHTMLOptions) {
-        Return ('<option>https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1</option>
+        Return ('<option>mobilenet_v2</option>
         <option>yolov3</option>
         <option>yolov4</option>
         <option>yolov5</option>
         <option>fasterrcnn</option>')
     }
     elseif ($OutputAsHTMLCards) {
-        Return ('<div class="card-group">
-        <div class="card" style="width: 18rem;">
-        <div class="card-body">
-          <h5 class="card-title">mobilenet_v2</h5>
-          <h6 class="card-subtitle mb-2 text-body-secondary"><i>by Google</i></h6>
-          <p class="card-text">SSD-based object detection model trained on Open Images V4 with ImageNet pre-trained MobileNet V2 as image feature extractor.</p>
-          <a href="https://www.kaggle.com/models/google/mobilenet-v2/tensorFlow1/openimages-v4-ssd-mobilenet-v2/1?tfhub-redirect=true" target="_blank" class="card-link">Further Info</a>
-        </div>
-      </div>
-      <div class="card" style="width: 18rem;">
-        <div class="card-body">
-          <h5 class="card-title">efficientdet</h5>
-          <h6 class="card-subtitle mb-2 text-body-secondary"><i>by tensorflow</i></h6>
-          <p class="card-text">EfficientDet Object detection model (SSD with EfficientNet-b0 + BiFPN feature extractor, shared box predictor and focal loss), trained on COCO 2017 dataset.</p>
-          <a href="https://www.kaggle.com/models/tensorflow/efficientdet/tensorFlow2/d0/1?tfhub-redirect=true" target="_blank" class="card-link">Further Info</a>
-        </div>
-      </div>
-      <div class="card" style="width: 18rem;">
-        <div class="card-body">
-          <h5 class="card-title">yolov3</h5>
-          <h6 class="card-subtitle mb-2 text-body-secondary"><i>by Joseph Redmon</i></h6>
-          <p class="card-text">YOLOv3 is an object detection model that uses a single neural network to predict bounding boxes and class probabilities directly from full images in one evaluation.</p>
-          <a href="https://pjreddie.com/darknet/yolo/" target="_blank" class="card-link">Further Info</a>
-        </div>
-      </div>
-      <div class="card" style="width: 18rem;">
-        <div class="card-body">
-          <h5 class="card-title">yolov4</h5>
-          <h6 class="card-subtitle mb-2 text-body-secondary"><i>by Alexey Bochkovskiy</i></h6>
-          <p class="card-text">YOLOv4 is a state-of-the-art, real-time object detection system that builds on YOLOv3 with several improvements for better performance and accuracy.</p>
-          <a href="https://github.com/AlexeyAB/darknet" target="_blank" class="card-link">Further Info</a>
-        </div>
-      </div>
-      <div class="card" style="width: 18rem;">
-        <div class="card-body">
-          <h5 class="card-title">yolov5</h5>
-          <h6 class="card-subtitle mb-2 text-body-secondary"><i>by Ultralytics</i></h6>
-          <p class="card-text">YOLOv5 is the latest evolution in the YOLO family, optimized for speed and accuracy, and built with PyTorch framework.</p>
-          <a href="https://github.com/ultralytics/yolov5" target="_blank" class="card-link">Further Info</a>
-        </div>
-      </div>
-      <div class="card" style="width: 18rem;">
-        <div class="card-body">
-          <h5 class="card-title">fasterrcnn</h5>
-          <h6 class="card-subtitle mb-2 text-body-secondary"><i>by Shaoqing Ren</i></h6>
-          <p class="card-text">Faster R-CNN is a region-based convolutional neural network that improves the speed and accuracy of object detection by integrating region proposal networks.</p>
-          <a href="https://arxiv.org/abs/1506.01497" target="_blank" class="card-link">Further Info</a>
-        </div>
-      </div>
-      </div>')
+        Return ('<div class="row row-cols-1 row-cols-md-2 g-4">
+                    <div class="col">
+                            <div class="card">
+                                <div class="card-body">
+                                <h5 class="card-title">mobilenet_v2</h5>
+                                <h6 class="card-subtitle mb-2 text-body-secondary"><i>by Google</i></h6>
+                                <p class="card-text">SSD-based object detection model trained on Open Images V4 with ImageNet pre-trained MobileNet V2 as image feature extractor.</p>
+                                <a href="https://www.kaggle.com/models/google/mobilenet-v2/tensorFlow1/openimages-v4-ssd-mobilenet-v2/1?tfhub-redirect=true" target="_blank" class="card-link">Further Info</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card">
+                                <div class="card-body">
+                                <h5 class="card-title">yolov3</h5>
+                                <h6 class="card-subtitle mb-2 text-body-secondary"><i>by Joseph Redmon</i></h6>
+                                <p class="card-text">YOLOv3 is an object detection model that uses a single neural network to predict bounding boxes and class probabilities directly from full images in one evaluation.</p>
+                                <a href="https://pjreddie.com/darknet/yolo/" target="_blank" class="card-link">Further Info</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">yolov4</h5>
+                                <h6 class="card-subtitle mb-2 text-body-secondary"><i>by Alexey Bochkovskiy</i></h6>
+                                <p class="card-text">YOLOv4 is a state-of-the-art, real-time object detection system that builds on YOLOv3 with several improvements for better performance and accuracy.</p>
+                                <a href="https://github.com/AlexeyAB/darknet" target="_blank" class="card-link">Further Info</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">yolov5</h5>
+                                <h6 class="card-subtitle mb-2 text-body-secondary"><i>by Ultralytics</i></h6>
+                                <p class="card-text">YOLOv5 is the latest evolution in the YOLO family, optimized for speed and accuracy, and built with PyTorch framework.</p>
+                                <a href="https://github.com/ultralytics/yolov5" target="_blank" class="card-link">Further Info</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">fasterrcnn</h5>
+                                <h6 class="card-subtitle mb-2 text-body-secondary"><i>by Shaoqing Ren</i></h6>
+                                <p class="card-text">Faster R-CNN is a region-based convolutional neural network that improves the speed and accuracy of object detection by integrating region proposal networks.</p>
+                                <a href="https://arxiv.org/abs/1506.01497" target="_blank" class="card-link">Further Info</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+  ')
     } 
     else {
-        Return ("https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1", "tensorflow/efficientdet/tensorFlow2/d0", "yolov3", "yolov4", "yolov5", "fasterrcnn")
+        Return ("mobilenet_v2", "yolov3", "yolov4", "yolov5", "fasterrcnn")
     }
 }
 
@@ -364,6 +367,7 @@ function Get-ScheduledCountJob {
                 <th scope="col">Object</th>
                 <th scope="col">Frequency</th>
                 <th scope="col">URL</th>
+                <th scope="col">Keep All Pics</th>
                 <th scope="col">Datatable Row Count</th>
                 <th scope="col">Last count Date/Time</th>
                 <th scope="col">Actions</th>
@@ -372,10 +376,16 @@ function Get-ScheduledCountJob {
         <tbody>
             ')
         $Return | ForEach-Object {
+            if ($_.keeppics -eq 0) {
+                $KeepPics = "No"
+            }
+            else {
+                $KeepPics = '<p class="text-danger-emphasis">Yes</p>'
+            }
+            $ModelLabel = $_.model
             switch ($_.model) {
-                "openimages_v4/ssd/mobilenet_v2/1" { $ModelLabel = "mobilenet" }
+                "https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1" { $ModelLabel = "mobilenet" }
                 "tensorflow/efficientdet/tensorFlow2/d0" { $ModelLabel = "efficientdet" }
-                Default { $ModelLabel = $_.model }
             }
             switch ($_.enabled) {
                 $false { $StatusIconButton = '<button type="submit" class="btn btn-outline-light" data-toggle="tooltip" data-placement="top" title="Scheduled Task is turned off right now, click to turn on"><i class="bi bi-play"></i></button>' }
@@ -388,6 +398,7 @@ function Get-ScheduledCountJob {
             <td>' + $_.object + '</td>
             <td>' + $_.frequencymin + ' min</td>
             <td ><a href="' + $_.URL + '"><p class="text-break">' + $_.URL + '</p></a></td>
+            <td >' + $KeepPics + '</td>
             <td>tbp</td>
             <td>tbp</td>
             <td>

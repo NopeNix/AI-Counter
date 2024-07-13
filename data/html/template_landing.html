@@ -102,33 +102,36 @@
                                     <p></p>
                                     <div class="row">
                                         <label for="object" class="col-form-label"><b>URL</b></label>
-                                        <div class="input-group mb-3">
-                                            <input type="text" class="form-control"
-                                                placeholder="https://picsum.photos/1920/1080" aria-label="URL"
-                                                aria-describedby="button-addon2" id="imagetocroppath" name="URL">
-                                            <button class="btn btn-outline-primary" type="button" id="button-addon2"
-                                                data-bs-toggle="modal" data-bs-target="#testandcrop">Test &
-                                                Crop</button>
+                                        <div class="col-sm-12">
+                                            <div class="input-group mb-3">
+                                                <input type="text" class="form-control"
+                                                    placeholder="https://picsum.photos/1920/1080" aria-label="URL"
+                                                    aria-describedby="button-addon2" id="imagetocroppath" name="URL">
+                                                <button class="btn btn-outline-primary" type="button" id="button-addon2"
+                                                    data-bs-toggle="modal" data-bs-target="#testandcrop">Test &
+                                                    Crop</button>
+                                            </div>
                                         </div>
-                                        <span class="form-text">
-                                            URL to image which should be analyized by the AI, e.g.
-                                            <i>https://picsum.photos/1920/1080</i>
-                                        </span>
+                                        <div class="col-auto">
+                                            <span class="form-text">
+                                                URL to image which should be analyized by the AI, e.g.
+                                                <i>https://picsum.photos/1920/1080</i>
+                                            </span>
+                                        </div>
                                     </div>
                                     <p></p>
                                     <div class="row">
                                         <label for="object" class="col-form-label"><b>Keep Pictures</b></label>
-                                        <div class="input-group mb-3">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" value="1"
-                                                    id="flexCheckDefault" name="keeppics">
-                                                <label class="form-check-label" for="flexCheckDefault">
-                                                    Keep all Pictures <p class="text-danger"><i
-                                                            class="bi bi-exclamation-circle"> Watch your Diskspace!</i>
-                                                        <br>
-                                                    </p>
-                                                </label>
-                                            </div>
+                                        <div class="col-sm-12">
+                                            <input class="form-check-input" type="checkbox" value="1"
+                                                id="flexCheckDefault" name="keeppics">
+                                            <label class="form-check-label" for="flexCheckDefault">
+                                                Keep all Pictures <p class="text-danger"><i
+                                                        class="bi bi-exclamation-circle"> Watch your Diskspace!</i>
+                                                    <br>
+                                                </p>
+                                        </div>
+                                        <div class="col-auto">
                                             <span class="form-text">
                                                 Turn this on to save all Pictures which have been analyzed (including
                                                 bounding Boxes).
