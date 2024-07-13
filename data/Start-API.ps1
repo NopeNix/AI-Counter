@@ -76,10 +76,11 @@ Start-PodeServer {
             # Perform Post Action
             $PostActionToast = ""
             if ($webevent.Method -ieq "post") {
+                if ($null -eq $webevent.data.keeppics) {$KeepPics = 0} else {$KeepPics = 1}
                 switch ($webevent.data.action) {
                     "add" { 
                         try {
-                            Set-ScheduledCountJob -JobName $webevent.data.jobname -Model $webevent.data.model -Object $webevent.data.object -FrequencyMinutes $webevent.data.frequency -URL $webevent.data.url
+                            Set-ScheduledCountJob -JobName $webevent.data.jobname -Model $webevent.data.model -Object $webevent.data.object -X $webevent.data.x -Y $webevent.data.y -Height $webevent.data.height -Width $webevent.data.width -FrequencyMinutes $webevent.data.frequency -URL $webevent.data.url -KeepPics $KeepPics
                             $PostActionToast += Get-ToastHTML -ToastHeader '<i style="color: #46a832" class="bi bi-check-square"></i> Success' -ToastIcon '' -ToastBody ("Job <b>" + $webevent.data.jobname + "</b> has been created!")
                         }
                         catch {

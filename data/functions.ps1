@@ -219,6 +219,22 @@ function Set-ScheduledCountJob {
 
         [Parameter()]
         [Int]
+        $X,
+
+        [Parameter()]
+        [Int]
+        $Y,
+
+        [Parameter()]
+        [Int]
+        $Width,
+
+        [Parameter()]
+        [Int]
+        $Height,
+
+        [Parameter()]
+        [Int]
         $FrequencyMinutes,
 
         [Parameter()]
@@ -235,7 +251,11 @@ function Set-ScheduledCountJob {
 
         [Parameter()]
         [switch]
-        $Disable
+        $Disable,
+
+        [Parameter()]
+        [String]
+        $KeepPics
     )
 
     if ($Enabled) { $EnabledString = 1 } else { $EnabledString = 0 }
@@ -252,7 +272,21 @@ function Set-ScheduledCountJob {
     Open-MySqlConnection -CommandTimeout 5000 -Server $env:MariaDBHost -Port $env:MariaDBPort -Credential (New-Object System.Management.Automation.PSCredential ($env:MariaDBUsername, (ConvertTo-SecureString $env:MariaDBPassword -AsPlainText -Force))) -Database $env:MariaDBDatabase -WarningAction SilentlyContinue -ErrorAction Stop
     if ($null -ne $ID -and $ID -ne "" -and !$Enable -and !$Disable) {
         try {
-            Invoke-SqlUpdate -Query ("UPDATE `scheduledcounts` SET `jobname` = '" + $JobName + "', `model` = '" + $Model + "', `object` = '" + $Object + "', `frequencymin` = '" + $FrequencyMinutes + "', `URL` = '" + $URL + "', `enabled` = '" + $EnabledString + "' WHERE `scheduledcounts`.`id` = " + $ID + ";") -ErrorAction Stop
+            Invoke-SqlUpdate -Query ("
+                UPDATE `scheduledcounts` SET 
+                    `jobname` = '" + $JobName + "', 
+                    `model` = '" + $Model + "', 
+                    `object` = '" + $Object + "', 
+                    `x` = '" + $x + "', 
+                    `y` = '" + $y + "', 
+                    `width` = '" + $width + "', 
+                    `height` = '" + $height + "', 
+                    `frequencymin` = '" + $FrequencyMinutes + "', 
+                    `URL` = '" + $URL + "', 
+                    `enabled` = '" + $EnabledString + "',
+                    `keeppics` = '" + $KeepPics + "' 
+                WHERE 
+                    `scheduledcounts`.`id` = " + $ID + ";") -ErrorAction Stop
             Return 0
         }
         catch {
@@ -262,8 +296,8 @@ function Set-ScheduledCountJob {
     }
     else {
         try {
-            Invoke-SqlUpdate -Query ("INSERT INTO ``scheduledcounts`` (``id``, ``jobname``, ``model``, ``object``, ``frequencymin``, ``URL``, ``enabled``, ``created``, `lastchanged`) 
-            VALUES (NULL, '" + $JobName + "', '" + $Model + "', '" + $Object + "', '" + $FrequencyMinutes + "', '" + $URL + "', '" + $EnabledString + "', current_timestamp(), current_timestamp());") -ErrorAction Stop
+            Invoke-SqlUpdate -Query ("INSERT INTO ``scheduledcounts`` (``id``, ``jobname``, ``model``, ``object``, ``x``, ``y``, ``width``, ``height``, ``frequencymin``, ``URL``, ``enabled``, ``created``, `lastchanged`, `keeppics`) 
+            VALUES (NULL, '" + $JobName + "', '" + $Model + "', '" + $Object + "', '" + $x + "', '" + $y + "', '" + $width + "', '" + $height + "', '" + $FrequencyMinutes + "', '" + $URL + "', '" + $EnabledString + "', current_timestamp(), current_timestamp(), '" + $KeepPics + "');") -ErrorAction Stop
             Return 0
         }
         catch {

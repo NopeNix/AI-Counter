@@ -27,8 +27,6 @@ services:
 
   db:
     image: mariadb:11.4.1-rc
-    ports:
-      - 3370:3306
     restart: always
     environment:
       - "MYSQL_ROOT_PASSWORD=notSecureChangeMe"
