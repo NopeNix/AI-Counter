@@ -162,10 +162,42 @@ function Get-AvailableAiModels {
           <a href="https://www.kaggle.com/models/tensorflow/efficientdet/tensorFlow2/d0/1?tfhub-redirect=true" target="_blank" class="card-link">Further Info</a>
         </div>
       </div>
+      <div class="card" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">yolov3</h5>
+          <h6 class="card-subtitle mb-2 text-body-secondary"><i>by Joseph Redmon</i></h6>
+          <p class="card-text">YOLOv3 is an object detection model that uses a single neural network to predict bounding boxes and class probabilities directly from full images in one evaluation.</p>
+          <a href="https://pjreddie.com/darknet/yolo/" target="_blank" class="card-link">Further Info</a>
+        </div>
+      </div>
+      <div class="card" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">yolov4</h5>
+          <h6 class="card-subtitle mb-2 text-body-secondary"><i>by Alexey Bochkovskiy</i></h6>
+          <p class="card-text">YOLOv4 is a state-of-the-art, real-time object detection system that builds on YOLOv3 with several improvements for better performance and accuracy.</p>
+          <a href="https://github.com/AlexeyAB/darknet" target="_blank" class="card-link">Further Info</a>
+        </div>
+      </div>
+      <div class="card" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">yolov5</h5>
+          <h6 class="card-subtitle mb-2 text-body-secondary"><i>by Ultralytics</i></h6>
+          <p class="card-text">YOLOv5 is the latest evolution in the YOLO family, optimized for speed and accuracy, and built with PyTorch framework.</p>
+          <a href="https://github.com/ultralytics/yolov5" target="_blank" class="card-link">Further Info</a>
+        </div>
+      </div>
+      <div class="card" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">fasterrcnn</h5>
+          <h6 class="card-subtitle mb-2 text-body-secondary"><i>by Shaoqing Ren</i></h6>
+          <p class="card-text">Faster R-CNN is a region-based convolutional neural network that improves the speed and accuracy of object detection by integrating region proposal networks.</p>
+          <a href="https://arxiv.org/abs/1506.01497" target="_blank" class="card-link">Further Info</a>
+        </div>
+      </div>
       </div>')
     } 
     else {
-        Return ("https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1", "tensorflow/efficientdet/tensorFlow2/d0")
+        Return ("https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1", "tensorflow/efficientdet/tensorFlow2/d0", "yolov3", "yolov4", "yolov5", "fasterrcnn")
     }
 }
 
